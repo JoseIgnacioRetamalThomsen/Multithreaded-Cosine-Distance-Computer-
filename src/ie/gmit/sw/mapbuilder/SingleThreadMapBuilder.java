@@ -1,4 +1,4 @@
-package ie.gmit.sw;
+package ie.gmit.sw.mapbuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,41 +11,42 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class MapBuilder implements Callable<Map<Long, Integer>>
+import ie.gmit.sw.Poison;
+import ie.gmit.sw.use.ConcurrentCounterHashMap;
+
+public class SingleThreadMapBuilder implements MapBuilder
 {
 
   private final BlockingQueue<Number> queue;
 
   Map<Long, Integer> map = new HashMap<>();
+  ConcurrentCounterHashMap<Integer> countingMap = new ConcurrentCounterHashMap<>();
   MyMap map1 = new MyMap();
   ExecutorService es = Executors.newFixedThreadPool(10000);
 
-  public MapBuilder(BlockingQueue<Number> queue)
+  public SingleThreadMapBuilder(BlockingQueue<Number> queue)
   {
     super();
     this.queue = queue;
   }
 
   @Override
-  public Map<Long, Integer> call() throws Exception
+  public ConcurrentCounterHashMap<Integer> call() throws Exception
   {
 
     while (true)
     {
       Number n = queue.take();
-      //System.out.println(n);
+      // System.out.println(n);
 
       if (!(n instanceof Poison))
       {
-        //es.execute(new MapPutter((long) n));
-        if (map.containsKey(n))
-        {
-          map.put((Long) n, map.get(n) + 1);
-        } else
-        {
-          map.put((Long) n, 1);
-        }
-
+        countingMap.count((Integer) n);
+        /*
+         * //es.execute(new MapPutter((long) n)); if (map.containsKey(n)) {
+         * map.put((Long) n, map.get(n) + 1); } else { map.put((Long) n, 1); }
+         * 
+         */
       } else
       {
 
@@ -60,12 +61,14 @@ public class MapBuilder implements Callable<Map<Long, Integer>>
      * for (Long n : map.keySet()) { System.out.println(map.get(n)); }
      */
 
-    //es.shutdown();
-   //  es.awaitTermination(500, TimeUnit.SECONDS);
+    // es.shutdown();
+    // es.awaitTermination(500, TimeUnit.SECONDS);
 
-   // return map1.getMat();
-    return map;
+    // return map1.getMat();
+   // System.out.println("insede size " + countingMap.size());
+    return countingMap;
   }
+
   private Object lock1 = new Object();
 
   class MapPutter implements Runnable
@@ -82,15 +85,17 @@ public class MapBuilder implements Callable<Map<Long, Integer>>
     @Override
     public void run()
     {
-    map1.add(n);
+      map1.add(n);
     }
 
   }
-  
-  class MyMap{
+
+  class MyMap
+  {
     Map<Long, Integer> map = new HashMap<>();
-    
-    public synchronized void add(Long n) {
+
+    public synchronized void add(Long n)
+    {
       if (map.containsKey(n))
       {
         map.put((Long) n, map.get(n) + 1);
@@ -99,8 +104,9 @@ public class MapBuilder implements Callable<Map<Long, Integer>>
         map.put((Long) n, 1);
       }
     }
-    
-    Map<Long, Integer> getMat(){
+
+    Map<Long, Integer> getMat()
+    {
       return map;
     }
   }

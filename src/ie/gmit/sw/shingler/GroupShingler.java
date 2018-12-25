@@ -1,4 +1,7 @@
-package ie.gmit.sw;
+package ie.gmit.sw.shingler;
+
+import ie.gmit.sw.spliter.SpliteFunctions;
+
 /**
  * 
  * @author pepe
@@ -9,11 +12,13 @@ public class GroupShingler extends AbstractShingler
 
   private String[] lineArray;
   private String[] buffer = null;
-  
+
   private int groupSize;
 
   private int position;
   private int bufferPosition;
+
+  private SpliteFunctions sp = new SpliteFunctions();
 
   /**
    * 
@@ -25,6 +30,7 @@ public class GroupShingler extends AbstractShingler
     this.groupSize = groupSize;
     this.position = 0;
   }
+
   /**
    * j
    */
@@ -47,14 +53,15 @@ public class GroupShingler extends AbstractShingler
         buffer = null;
       }
     }
-    // split input into string in the lineArray
-    this.lineArray = line.toString().split(" ");
 
+    this.lineArray = sp.splitWordsNumber(line.toString().toLowerCase());
+
+    String s1 = "";
     for (String s : lineArray)
     {
-     // System.out.print("_" + s + "_");
+      s1 += ("_" + s + "_");
     }
-   // System.out.println();
+    //System.out.println(s1);
     // reset position
     this.position = 0;
 
@@ -63,53 +70,48 @@ public class GroupShingler extends AbstractShingler
   }// addLine(CharSequence line)
 
   @Override
-  public long nextShingle()
+  public int nextShingle()
   {
-    long shingle = 0;
-    // if (lineArray.length - position > groupSize)
-
-    // check buffer
+    // long shingle = 0;
+    StringBuilder sb = new StringBuilder();
     if (buffer != null)
     {
       for (int i = bufferPosition; i < buffer.length; i++)
       {
-        shingle += buffer[i].hashCode();
+
+        sb.append(buffer[i]);
+        // shingle += buffer[i].hashCode();
       }
       int i = position;
       // add the number of missing characters
       for (; i < position + groupSize - (buffer.length - bufferPosition); i++)
       {
-        if (lineArray[i].hashCode() == 0)
-        {
 
-          position++;
-          continue;
-        }
-        shingle += lineArray[i].hashCode();
+        sb.append(buffer[i]);
+
+       
 
       }
       position += i - position;
 
       buffer = null;
-      return shingle;
+      return sb.toString().hashCode();
     }
 
     int i = position;
     for (; i < position + groupSize; i++)
     {
-      if (lineArray[i].hashCode() == 0)
-      {
 
-        position++;
-        continue;
-      }
-      shingle += lineArray[i].hashCode();
+      sb.append(lineArray[i]);
+     // shingle += lineArray[i].hashCode();
 
     }
-    // System.out.println("i after: " + i);
+
     position += i - position;
 
-    return shingle;
+    //return shingle;
+   // System.out.println(sb);
+    return sb.toString().hashCode();
   }
 
   @Override
@@ -121,24 +123,34 @@ public class GroupShingler extends AbstractShingler
     }
     return false;
   }
-  
-  public boolean hasLast() {
-    if(buffer!=null) {
+
+  public boolean hasLast()
+  {
+    if (buffer != null)
+    {
       return true;
     }
     return false;
   }
-  
-  public long lastShingle() throws Exception {
+
+  public int lastShingle() 
+  {
     long shingle = 0;
-    if(this.buffer !=null) {
+    
+    StringBuilder sb = new StringBuilder();
+    
+    if (this.buffer != null)
+    {
       for (int i = bufferPosition; i < buffer.length; i++)
       {
-        shingle += buffer[i].hashCode();
+        sb.append(buffer[i]);
+        //shingle += buffer[i].hashCode();
       }
-      return shingle;
+      //return shingle;
+      //System.out.println(sb);
+      sb.toString().hashCode();
     }
-    throw new Exception();
+    throw new RuntimeException();
   }
 
 }

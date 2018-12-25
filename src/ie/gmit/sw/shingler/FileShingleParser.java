@@ -1,11 +1,14 @@
-package ie.gmit.sw;
+package ie.gmit.sw.shingler;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.BlockingQueue;
+
+import ie.gmit.sw.Poison;
 
 public class FileShingleParser implements Runnable
 {
@@ -20,7 +23,7 @@ public class FileShingleParser implements Runnable
   public FileShingleParser(BlockingQueue<Number> queue)
   {
     this.queue = queue;
-    shingler = new GroupShingler(1);
+    shingler = new KShingler(5);
   }
 
   public void setFile(String path)
@@ -29,6 +32,7 @@ public class FileShingleParser implements Runnable
     try
     {
       fileIn = new BufferedReader(new InputStreamReader(new FileInputStream(path)));
+
     } catch (FileNotFoundException e)
     {
       // TODO Auto-generated catch block
@@ -57,19 +61,23 @@ public class FileShingleParser implements Runnable
 
       if (shingler.hasLast())
       {
+
         queue.put(shingler.lastShingle());
+
       }
 
-      queue.add(new Poison());
+      queue.put(new Poison());
 
     } catch (IOException e)
     {
       // TODO Auto-generated catch block
       e.printStackTrace();
+
     } catch (InterruptedException e)
     {
       // TODO Auto-generated catch block
       e.printStackTrace();
+
     } catch (Exception e)
     {
       // TODO Auto-generated catch block
