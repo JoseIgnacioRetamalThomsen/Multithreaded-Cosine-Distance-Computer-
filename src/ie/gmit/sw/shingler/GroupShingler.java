@@ -17,6 +17,7 @@ public class GroupShingler extends AbstractShingler
 
   private int position;
   private int bufferPosition;
+  private boolean isFirst = true;
 
   private SpliteFunctions sp = new SpliteFunctions();
 
@@ -37,7 +38,9 @@ public class GroupShingler extends AbstractShingler
   @Override
   public boolean addLine(CharSequence line)
   {
-    if (this.lineArray != null)
+    if(line.equals("")) return false;
+    
+    if (this.isFirst ==false)
     {
       if (this.hasNextShingle())
         return false;
@@ -65,6 +68,8 @@ public class GroupShingler extends AbstractShingler
     // reset position
     this.position = 0;
 
+    if (this.isFirst ==false) this.isFirst=false;
+    
     return true;
 
   }// addLine(CharSequence line)
@@ -95,6 +100,7 @@ public class GroupShingler extends AbstractShingler
       position += i - position;
 
       buffer = null;
+      bufferPosition = 0;
       return sb.toString().hashCode();
     }
 

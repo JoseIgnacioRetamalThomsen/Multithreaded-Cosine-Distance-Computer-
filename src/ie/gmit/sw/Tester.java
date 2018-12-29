@@ -14,10 +14,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import ie.gmit.sw.mapbuilder.MapBuilder;
-import ie.gmit.sw.mapbuilder.SingleThreadMapBuilder;
+import ie.gmit.sw.calculator.CosineCalculator;
+import ie.gmit.sw.counting.ConcurrentCounterHashMap;
+import ie.gmit.sw.counting.CounterMap;
+import ie.gmit.sw.counting.MapBuilder;
+import ie.gmit.sw.counting.SingleThreadMapBuilder;
 import ie.gmit.sw.shingler.FileShingleParser;
-import ie.gmit.sw.use.ConcurrentCounterHashMap;
 
 public class Tester
 {
@@ -52,7 +54,7 @@ public class Tester
      * 
      */
 
-    List<Future<ConcurrentCounterHashMap<Integer>>> res = new ArrayList<>();
+    List<Future<CounterMap<Integer>>> res = new ArrayList<>();
 
     File subjectDir = new File("sub");
 
@@ -64,24 +66,24 @@ public class Tester
     //the one file
     
     BlockingQueue<Number> que1 = new ArrayBlockingQueue<>(100);
-    FileShingleParser pa1 = new FileShingleParser(que1);
-    pa1.setFile("WarAndPeace-LeoTolstoy.txt");
+    FileShingleParser pa1 = new FileShingleParser(que1,5,ShingleType.K_Mers);
+    pa1.setFile(new File("WarAndPeace-LeoTolstoy.txt"));
     new Thread(pa1).start();
-    MapBuilder m1 = new SingleThreadMapBuilder(que1);
+    MapBuilder m1 = new SingleThreadMapBuilder(que1,"w");
     
-    Future<ConcurrentCounterHashMap<Integer>> res1 = mapBuilderExecutor.submit(m1);
+    Future<CounterMap<Integer>> res1 = mapBuilderExecutor.submit(m1);
     
     for (String f : files)
     {
 
       BlockingQueue<Number> que = new ArrayBlockingQueue<>(100);
-      FileShingleParser pa = new FileShingleParser(que);
+      FileShingleParser pa = new FileShingleParser(que,5,ShingleType.K_Mers);
      // pa.setFile(subjectDir.getPath()+"/" +f);
      // System.out.println(new File(subjectDir,f).toString());
-      pa.setFile(new File(subjectDir,f).toString());
+      pa.setFile(new File(subjectDir,f));
       parcerExecutor.execute(pa);
 
-      MapBuilder m = new SingleThreadMapBuilder(que);
+      MapBuilder m = new SingleThreadMapBuilder(que,f);
 
       res.add(mapBuilderExecutor.submit(m));
     }
@@ -109,8 +111,8 @@ public class Tester
     
     System.out.println("d"+res.size());
     
-    ArrayList<Future<Double>> rr = new ArrayList<>(); 
-    for(Future<ConcurrentCounterHashMap<Integer>> mk : res) {
+    ArrayList<Future<CosineDistanceResult>> rr = new ArrayList<>(); 
+    for(Future<CounterMap<Integer>> mk : res) {
       
       rr.add(las.submit(new CosineCalculator(res1.get(),mk.get() ))) ;
      // System.out.println(mk.get());
@@ -127,8 +129,8 @@ public class Tester
       e.printStackTrace();
     }
 
-    for(Future<Double> dou:rr) {
-      System.out.println(dou.get());
+    for(Future<CosineDistanceResult> dou:rr) {
+      System.out.println(dou.get().getCosineDistance());
     }
     /*
      * long start = System.nanoTime(); BlockingQueue<Number> queue = new

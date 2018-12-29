@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import ie.gmit.sw.use.ConcurrentCounterHashMap;
+import ie.gmit.sw.counting.ConcurrentCounterHashMap;
 
 class CountTest
 {

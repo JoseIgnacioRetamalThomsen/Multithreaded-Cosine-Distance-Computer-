@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.util.concurrent.BlockingQueue;
 
 import ie.gmit.sw.Poison;
+import ie.gmit.sw.ShingleType;
 
 public class FileShingleParser implements Runnable
 {
@@ -20,26 +21,40 @@ public class FileShingleParser implements Runnable
 
   private Shingable shingler;
 
-  public FileShingleParser(BlockingQueue<Number> queue)
+  public FileShingleParser(BlockingQueue<Number> queue, int shingleSize, ShingleType shingleType)
   {
     this.queue = queue;
-    shingler = new KShingler(5);
+    switch (shingleType)
+    {
+    case Group:
+      shingler = new GroupShingler(shingleSize);
+      break;
+    case K_Mers:
+      shingler = new KShingler(shingleSize);
+      break;
+      
+    }
+
   }
 
-  public void setFile(String path)
+  public boolean setFile(File file)
   {
 
     try
     {
-      fileIn = new BufferedReader(new InputStreamReader(new FileInputStream(path)));
-
+      fileIn = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+      return true;
     } catch (FileNotFoundException e)
     {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      //not a file return false
+      return false;
     }
   }
 
+  public boolean isFileSet() {
+    return fileIn!=null;
+  }
+  
   @Override
   public void run()
   {
