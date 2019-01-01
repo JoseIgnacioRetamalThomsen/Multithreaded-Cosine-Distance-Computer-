@@ -1,20 +1,44 @@
-package ie.gmit.sw.shingler;
+/*
+ * A Multithreaded Cosine Distance Computer. 
+ * Object Oriented Programming. 
+ * Galway-Mayo Institute of technologies.
+ * Jose I. Retamal
+ * 
+ */
 
+package ie.gmit.sw.base;
+
+import java.util.NoSuchElementException;
+
+import ie.gmit.sw.shingler.Shingable;
 import ie.gmit.sw.spliter.SpliteFunctions;
 
 /**
+ * Implementation of shingable for create a word group shingles.
+ * <p>
+ * Considered only words and number, skip punctuation and white spaces, numbers
+ * are considered words and words appended to number are considered one
+ * word(e.g. neo07)
+ * </p>
+ * <p>
+ * The group of words are append and then the hash code of all the words
+ * appended together is returned.
+ * </p>
  * 
- * @author pepe
+ * @author Jose I. Retamal
  *
  */
-public class GroupShingler extends AbstractShingler
+public class GroupShingler implements Shingable
 {
+  /*
+   * implemented using array of words, which is created using a split function.
+   * Use 2 arrays one for the actual words and one for buffer words for next line.
+   */
 
   private String[] lineArray;
   private String[] buffer = null;
 
   private int groupSize;
-
   private int position;
   private int bufferPosition;
   private boolean isFirst = true;
@@ -22,8 +46,10 @@ public class GroupShingler extends AbstractShingler
   private SpliteFunctions sp = new SpliteFunctions();
 
   /**
+   * Create a group shingles that will produce shingles with selected size of
+   * words group.
    * 
-   * @param groupSize
+   * @param groupSize size of groups of words
    */
   public GroupShingler(int groupSize)
   {
@@ -33,14 +59,19 @@ public class GroupShingler extends AbstractShingler
   }
 
   /**
-   * j
+   *
+   * {@inheritDoc}
+   * <p>
+   * Split line in strings that are individual words, then add then to the array
+   * of words.
+   * </p>
    */
-  @Override
   public boolean addLine(CharSequence line)
   {
-    if(line.equals("")) return false;
-    
-    if (this.isFirst ==false)
+    if (line.equals(""))
+      return false;
+
+    if (this.isFirst == false)
     {
       if (this.hasNextShingle())
         return false;
@@ -64,20 +95,25 @@ public class GroupShingler extends AbstractShingler
     {
       s1 += ("_" + s + "_");
     }
-    //System.out.println(s1);
+
     // reset position
     this.position = 0;
 
-    if (this.isFirst ==false) this.isFirst=false;
-    
+    if (this.isFirst == false)
+      this.isFirst = false;
+
     return true;
 
-  }// addLine(CharSequence line)
+  }
 
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public int nextShingle()
   {
-    // long shingle = 0;
+    if (!hasNextShingle())
+      throw new NoSuchElementException();
+
     StringBuilder sb = new StringBuilder();
     if (buffer != null)
     {
@@ -94,8 +130,6 @@ public class GroupShingler extends AbstractShingler
 
         sb.append(buffer[i]);
 
-       
-
       }
       position += i - position;
 
@@ -109,54 +143,70 @@ public class GroupShingler extends AbstractShingler
     {
 
       sb.append(lineArray[i]);
-     // shingle += lineArray[i].hashCode();
 
     }
 
     position += i - position;
 
-    //return shingle;
-   // System.out.println(sb);
     return sb.toString().hashCode();
+
   }
 
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public boolean hasNextShingle()
   {
+    if (lineArray == null)
+      return false;
+
     if (lineArray.length - position >= groupSize)
     {
       return true;
     }
+
     return false;
+
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean hasLast()
   {
+    if (hasNextShingle())
+      throw new IllegalStateException();
+
     if (buffer != null)
     {
       return true;
+
     }
+
     return false;
+
   }
 
-  public int lastShingle() 
+  /**
+   * {@inheritDoc}
+   */
+  public int lastShingle()
   {
-    long shingle = 0;
-    
+
     StringBuilder sb = new StringBuilder();
-    
+
     if (this.buffer != null)
     {
       for (int i = bufferPosition; i < buffer.length; i++)
       {
         sb.append(buffer[i]);
-        //shingle += buffer[i].hashCode();
+
       }
-      //return shingle;
-      //System.out.println(sb);
+
       sb.toString().hashCode();
     }
-    throw new RuntimeException();
+
+    throw new NoSuchElementException();
   }
 
 }

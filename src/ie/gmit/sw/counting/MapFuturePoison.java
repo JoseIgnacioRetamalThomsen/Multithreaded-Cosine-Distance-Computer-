@@ -22,15 +22,14 @@ public class MapFuturePoison<V>  implements Future<CounterMap<Integer>>
   @Override
   public CounterMap<Integer> get() throws InterruptedException, ExecutionException
   {
-    // TODO Auto-generated method stub
-    return null;
+   
+    return new PosionCounterMap<Integer>();
   }
 
   @Override
   public CounterMap<Integer> get(long timeout, TimeUnit unit)
       throws InterruptedException, ExecutionException, TimeoutException
   {
-    // TODO Auto-generated method stub
     return null;
   }
 

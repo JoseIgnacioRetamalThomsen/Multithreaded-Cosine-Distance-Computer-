@@ -14,13 +14,14 @@ import ie.gmit.sw.counting.CounterMap;
 import ie.gmit.sw.counting.MapBuilder;
 import ie.gmit.sw.counting.Counter;
 import ie.gmit.sw.counting.SingleThreadMapBuilder;
-import ie.gmit.sw.shingler.FileShingleParser;
+import ie.gmit.sw.fileshingleparser.FileShingleParser;
 
 public class Test1
 {
 
   public static void main(String[] args) throws InterruptedException
   {
+    /*
     
     //Thread.sleep(10000);
     
@@ -76,7 +77,7 @@ public class Test1
       }
 
     }
-
+*/
   }
 
  

@@ -1,61 +1,110 @@
+/*
+ * A Multithreaded Cosine Distance Computer. 
+ * Object Oriented Programming. 
+ * Galway-Mayo Institute of technologies.
+ * Jose I. Retamal
+ * 
+ */
 package ie.gmit.sw.shingler;
 
-public class KShingler extends AbstractShingler
+import java.util.NoSuchElementException;
+
+/**
+ * Implementation of shingable that produce k-mers shingles.
+ * <p>
+ * The size of the k-mers can be set.
+ * </p>
+ * 
+ * @author Jose I. Retamal
+ *
+ */
+public class KShingler implements Shingable
 {
 
-  private int length = 5;
-  private int position = 0;
-  private StringBuilder line = new StringBuilder();
+  /*
+   * Use a StringBuilder, a new one is created each time, when the first line is
+   * added bill added to the StringBuilder, when another line is added(after all
+   * shingler are taken) if will be append to any character remaining.
+   * 
+   */
+  private int length; // lenght of k-mers
+  private int position;// start of next k-mer
+  private StringBuilder line;
 
-  public KShingler(int i)
+  /**
+   * Create a new KShingler object with k-mers size of parameter value.
+   * 
+   * @param shingleLength size of the k-mers in characters.
+   */
+  public KShingler(int shingleLength)
   {
-    this.length = i;
+    this.length = shingleLength;
+    this.position = 0;
+    line = null;
+
   }
 
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public boolean addLine(CharSequence line)
   {
-    // check if there is next(Only can add line if there is not)
-    if (hasNextShingle())
-      return false;
-
-    if (this.line.equals(""))
+    // check for first line
+    if (this.line == null)
     {
-      this.line.append(line);
+      this.line = new StringBuilder(line);
+
     } else
     {
+      // check if there is next(Only can add line if there is not)
+      if (hasNextShingle())
+        return false;
+
       this.line = new StringBuilder(this.line.substring(position, this.line.length()));
       this.line.append(line);
       position = 0;
     }
 
     return true;
+
   }
 
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public int nextShingle()
   {
+    if (!hasNextShingle())
+      throw new NoSuchElementException();
+
     int hash = line.substring(position, position + length).toString().hashCode();
     position += length;
 
     return hash;
+
   }
 
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public boolean hasNextShingle()
   {
-    // check if one more shingler can be made it from the string
-
     return (line.length() - position) >= length;
+
   }
 
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public boolean hasLast()
   {
     return (line.length() - position) > 0;
+
   }
 
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public int lastShingle()
   {
     int hash = line.substring(position, line.length()).toString().hashCode();
@@ -63,36 +112,7 @@ public class KShingler extends AbstractShingler
     position = 0;
 
     return hash;
+
   }
 
-  public static void main(String[] args) throws Exception
-  {
-    StringBuilder s = new StringBuilder("today i went to my house. conme and see.");
-    s.substring(4);
-
-    System.out.println(new String("This ").hashCode() + ",");
-    System.out.println(new String("is th").hashCode() + ",");
-    System.out.println(new String("e fir").hashCode() + ",");
-    System.out.println(new String("st li").hashCode() + ",");
-    System.out.println(new String("nethi").hashCode() + ",");
-    System.out.println(new String("s is ").hashCode() + ",");
-    System.out.println(new String("the s").hashCode() + ",");
-    System.out.println(new String("econd").hashCode() + ",");
-    System.out.println(new String(" one.").hashCode() + ",");
-    System.out.println(new String("..").hashCode());
-    /*
-     * System.out.println(s.substring(5, 10).toString().hashCode());
-     * System.out.println("|" + s.substring(5, 10) + "|");
-     * 
-     * KShingler k = new KShingler(); k.addLine("today i went to my");
-     * System.out.println("has " + k.hasNextShingle()); System.out.println("first "
-     * + k.nextShingle()); System.out.println("has " + k.hasNextShingle());
-     * System.out.println("second " + k.nextShingle()); System.out.println("has " +
-     * k.hasNextShingle()); System.out.println("second " + k.nextShingle());
-     * System.out.println("has " + k.hasNextShingle());
-     * System.out.println("has last " + k.hasLast()); k.addLine(" house. conme");
-     * System.out.println("has l " + k.hasNextShingle());
-     * System.out.println("second " + k.nextShingle());
-     */
-  }
 }

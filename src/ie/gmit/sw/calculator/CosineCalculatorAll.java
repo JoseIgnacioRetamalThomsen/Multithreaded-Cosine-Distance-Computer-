@@ -15,7 +15,7 @@ import ie.gmit.sw.counting.PosionCounterMap;
 public class CosineCalculatorAll implements Runnable
 {
 
-  private BlockingQueue<CounterMap<Integer>> maps;
+  private BlockingQueue<Future<CounterMap<Integer>>> maps;
 
   private BlockingQueue<Future<CosineDistanceResult>> answers;
 
@@ -24,7 +24,7 @@ public class CosineCalculatorAll implements Runnable
   private ExecutorService executor;
   private int poolSize;
 
-  public CosineCalculatorAll(BlockingQueue<CounterMap<Integer>> maps,
+  public CosineCalculatorAll(BlockingQueue<Future<CounterMap<Integer>>> maps,
       BlockingQueue<Future<CosineDistanceResult>> answers, CounterMap<Integer> queryFile, int poolSize)
   {
     super();
@@ -43,12 +43,22 @@ public class CosineCalculatorAll implements Runnable
 
     while (true)
     {
+      System.out.println("is me..");
       try
       {
-        CounterMap<Integer> temp = maps.take();
+
+        CounterMap<Integer> temp = null;
+        try
+        {
+          temp = maps.take().get();
+        } catch (ExecutionException e)
+        {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
         if (!(temp instanceof PosionCounterMap))
         {
-          answers.put(executor.submit(new CosineCalculator(queryFile, temp)));
+          answers.put(executor.submit(new CosineCalculatorBig(queryFile, temp)));
         } else
         {
           break;
@@ -59,9 +69,9 @@ public class CosineCalculatorAll implements Runnable
         e.printStackTrace();
       }
     }
-
+    System.out.println("no is not...");
     executor.shutdown();
-    
-  }//run()
+
+  }// run()
 
 }

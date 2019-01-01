@@ -1,6 +1,7 @@
 package ie.gmit.sw;
 
 import java.io.File;
+import java.util.LinkedList;
 
 public class ServiceData
 {
@@ -9,7 +10,6 @@ public class ServiceData
   private ShingleType shinglerType;
   private int shingleLength;
 
-
   public ServiceData()
   {
     super();
@@ -17,7 +17,21 @@ public class ServiceData
     this.queryFile = null;
     this.shinglerType = ShingleType.K_Mers;
     this.shingleLength = 5;
-    
+
+  }
+
+  public File[] getFiles()
+  {
+    File[] all = subjectDirectory.listFiles();
+    LinkedList<File> result = new LinkedList<>();
+    for (File f : all)
+    {
+      if (f.isFile() && f.canRead())
+        result.add(f);
+
+    }
+
+    return result.toArray(new File[result.size()]);
   }
 
   /**
@@ -87,7 +101,7 @@ public class ServiceData
     return this.subjectDirectory != null;
 
   }
-  
+
   /**
    * @return the shinglerType
    */

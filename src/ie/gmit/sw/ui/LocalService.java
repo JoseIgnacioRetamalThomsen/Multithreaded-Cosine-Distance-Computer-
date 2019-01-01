@@ -46,7 +46,7 @@ import ie.gmit.sw.counting.Counter;
 import ie.gmit.sw.counting.CounterMap;
 import ie.gmit.sw.counting.MapBuilder;
 import ie.gmit.sw.counting.SingleThreadMapBuilder;
-import ie.gmit.sw.shingler.FileShingleParser;
+import ie.gmit.sw.fileshingleparser.FileShingleParser;
 import ie.gmit.sw.ui.MainWindow1.WriteTask;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.value.ChangeListener;
@@ -96,7 +96,7 @@ public class LocalService extends Service<String>
 
   private ServiceData serviceData = new ServiceData();
 
-  private BlockingQueue<CounterMap<Integer>> maps = new ArrayBlockingQueue<>(100);
+  private BlockingQueue<Future<CounterMap<Integer>>> maps = new LinkedBlockingQueue<>(1000);
 
   private BlockingQueue<Future<CosineDistanceResult>> results = new LinkedBlockingQueue<Future<CosineDistanceResult>>(
       1000);
@@ -138,9 +138,11 @@ public class LocalService extends Service<String>
 
         // calculate again files
 
-        String[] files = serviceData.getSubjectDirectory().list();
+        File[] files = serviceData.getFiles();
         int totalFiles = files.length;
 
+        System.out.println(totalFiles);
+        
         // progress bar
         int totalWorkTaskBar = totalFiles * 2;
         int workDoneTaskBar = 1;

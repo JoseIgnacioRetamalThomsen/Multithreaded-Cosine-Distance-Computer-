@@ -5,7 +5,7 @@ public class SpliteFunctions
 
   public  String[]  splitWordsNumber(String line) {
     
-    return line.split("[^a-zA-Z0-9-]++");
+    return line.split("[^a-zA-Z0-9]++");
     
   }
   

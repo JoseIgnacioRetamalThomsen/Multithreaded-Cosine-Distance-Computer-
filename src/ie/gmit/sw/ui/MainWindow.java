@@ -38,7 +38,7 @@ import ie.gmit.sw.counting.Counter;
 import ie.gmit.sw.counting.CounterMap;
 import ie.gmit.sw.counting.MapBuilder;
 import ie.gmit.sw.counting.SingleThreadMapBuilder;
-import ie.gmit.sw.shingler.FileShingleParser;
+import ie.gmit.sw.fileshingleparser.FileShingleParser;
 import ie.gmit.sw.ui.MainWindow.AddToResultListTask;
 import ie.gmit.sw.ui.MainWindow1.WriteTask;
 import javafx.beans.binding.ListBinding;

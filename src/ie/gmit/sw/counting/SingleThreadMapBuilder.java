@@ -1,3 +1,10 @@
+/*
+ * A Multithreaded Cosine Distance Computer. 
+ * Object Oriented Programming. 
+ * Galway-Mayo Institute of technologies.
+ * Jose I. Retamal
+ * 
+ */
 package ie.gmit.sw.counting;
 
 import java.util.HashMap;
@@ -13,15 +20,27 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import ie.gmit.sw.Poison;
 
+/**
+ * 
+ * @author Jose I. Retamal
+ *
+ */
 public class SingleThreadMapBuilder implements MapBuilder
 {
 
   private final BlockingQueue<Number> queue;
 
-  CounterMap<Integer> countingMap = new ConcurrentCounterHashMap<>();
+  private CounterMap<Integer> countingMap = new ConcurrentCounterHashMap<>();
 
-  //ExecutorService es = Executors.newFixedThreadPool(10000);
 
+
+  /**
+   * Create a {@code Callable} {@code SingleThreadMapBuilder} that counts shingles from queue.
+   * <p>Must be executed in a {@code Executr}</p> 
+   * 
+   * @param queue input queue of integer shingles
+   * @param fileName name of the file from where created the shingles
+   */
   public SingleThreadMapBuilder(BlockingQueue<Number> queue,String fileName)
   {
     super();
@@ -29,7 +48,11 @@ public class SingleThreadMapBuilder implements MapBuilder
     this.countingMap.setName(fileName);
   }
 
-  @Override
+  /**
+   * take from queue use counting map for count then return the counted map.
+   * 
+   * @return {@code Future} of the counter map
+   */
   public CounterMap<Integer> call() throws Exception
   {
 

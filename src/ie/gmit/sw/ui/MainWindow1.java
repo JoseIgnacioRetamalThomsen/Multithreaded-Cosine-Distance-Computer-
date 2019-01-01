@@ -36,7 +36,7 @@ import ie.gmit.sw.counting.CounterMap;
 import ie.gmit.sw.counting.MapBuilder;
 import ie.gmit.sw.counting.Counter;
 import ie.gmit.sw.counting.SingleThreadMapBuilder;
-import ie.gmit.sw.shingler.FileShingleParser;
+import ie.gmit.sw.fileshingleparser.FileShingleParser;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.geometry.Insets;
@@ -79,7 +79,7 @@ public class MainWindow1 extends Application
       @Override
       public void run()
       {
-
+/*
         System.out.println("runnig");
         File subjectDir = new File("sub");
 
@@ -161,10 +161,13 @@ public class MainWindow1 extends Application
           }
 
         }
+        */
         // return null;
       }
+      
     });
     tt.start();
+    
     ExecutorService pr = Executors.newFixedThreadPool(100);
    // pr.submit(task);
    

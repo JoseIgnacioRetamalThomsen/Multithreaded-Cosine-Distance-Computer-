@@ -19,7 +19,7 @@ import ie.gmit.sw.counting.ConcurrentCounterHashMap;
 import ie.gmit.sw.counting.CounterMap;
 import ie.gmit.sw.counting.MapBuilder;
 import ie.gmit.sw.counting.SingleThreadMapBuilder;
-import ie.gmit.sw.shingler.FileShingleParser;
+import ie.gmit.sw.fileshingleparser.FileShingleParser;
 
 public class Tester
 {

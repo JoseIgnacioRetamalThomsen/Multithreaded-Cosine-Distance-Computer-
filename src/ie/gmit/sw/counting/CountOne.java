@@ -9,7 +9,7 @@ import java.util.concurrent.Future;
 
 import ie.gmit.sw.CosineDistanceResult;
 import ie.gmit.sw.ShingleType;
-import ie.gmit.sw.shingler.FileShingleParser;
+import ie.gmit.sw.fileshingleparser.FileShingleParser;
 
 public class CountOne
 {

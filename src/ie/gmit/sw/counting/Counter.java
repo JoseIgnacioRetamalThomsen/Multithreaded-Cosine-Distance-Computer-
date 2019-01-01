@@ -13,14 +13,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import ie.gmit.sw.ShingleType;
-import ie.gmit.sw.shingler.FileShingleParser;
+import ie.gmit.sw.fileshingleparser.FileShingleParser;
 
 public class Counter implements Runnable
 {
 
-  private BlockingQueue<CounterMap<Integer>> maps;
+  private BlockingQueue<Future<CounterMap<Integer>>> maps;
 
-  private String[] files;
+  private File[] files;
 
   private File subjectDir;
 
@@ -30,12 +30,11 @@ public class Counter implements Runnable
 
   private ExecutorService mapBuilderExecutor;
   private int shingleSize;
-  
-  private ShingleType shingleType;
-  
-  private int internalQueueSize = 10000; //this limit memory usage, higher value more memory use.
 
-  public Counter(BlockingQueue<CounterMap<Integer>> queue, String[] files, File subjectDir, int shingleSize,ShingleType shingleType)
+  private ShingleType shingleType;
+
+  public Counter(BlockingQueue<Future<CounterMap<Integer>>> queue, File[] files, File subjectDir, int shingleSize,
+      ShingleType shingleType)
   {
     maps = queue;
 
@@ -44,135 +43,51 @@ public class Counter implements Runnable
 
     parcerExecutor = Executors.newFixedThreadPool(threadNumber);
     mapBuilderExecutor = Executors.newFixedThreadPool(threadNumber);
-    
+
     this.shingleSize = shingleSize;
-    
+
     this.shingleType = shingleType;
   }
-  
 
   @Override
   public void run()
   {
-   // LinkedList<Future<CounterMap<Integer>>> res = new LinkedList<>();
-    BlockingQueue<Future<CounterMap<Integer>>> res1 = new LinkedBlockingQueue<>(internalQueueSize);
 
-    new Thread( new Runnable() {
-
-      @Override
-      public void run()
-      {
-        for (String file : files)
-        {
-          BlockingQueue<Number> fileParseQueue = new LinkedBlockingQueue<>(1000);
-
-          FileShingleParser parcer = new FileShingleParser(fileParseQueue,shingleSize,shingleType);
-
-          parcer.setFile(new File(subjectDir, file));
-
-          parcerExecutor.execute(parcer);
-
-          MapBuilder mapBuilder = new SingleThreadMapBuilder(fileParseQueue, file);
-
-          //res.offer(mapBuilderExecutor.submit(mapBuilder));
-          try
-          {
-            res1.put(mapBuilderExecutor.submit(mapBuilder));
-          } catch (InterruptedException e)
-          {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-
-        }
-         try
-        {
-          res1.put(new MapFuturePoison<String>());
-        } catch (InterruptedException e)
-        {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-      }
-      
-    }).start();
-    
-    new Thread(new Runnable() {
-
-      @Override
-      public void run()
-      {
-        while(true) {
-          
-          try
-          {
-            Future<CounterMap<Integer>> temp = res1.take();
-            
-            if(temp instanceof MapFuturePoison) {
-              maps.put(new PosionCounterMap<Integer>());
-              break;
-            }
-            
-            maps.put(temp.get());
-          } catch (InterruptedException e)
-          {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          } catch (ExecutionException e)
-          {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-          
-        }
-        parcerExecutor.shutdown();
-        mapBuilderExecutor.shutdown();
-        
-      }
-      
-    }).start();
-    
-/*
-    int total = res.size();
-
-    while (total > 0)
+    for (File file : files)
     {
 
-      if (res.peek().isDone())
-      {
-        try
-        {
-          maps.put(res.poll().get());
-          total--;
-          // System.out.println("hapesnsiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+      BlockingQueue<Number> fileParseQueue = new LinkedBlockingQueue<>(1000);
 
-        } catch (InterruptedException e)
-        {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        } catch (ExecutionException e)
-        {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-      } else
+      FileShingleParser parcer = new FileShingleParser(fileParseQueue, shingleSize, shingleType);
+
+      parcer.setFile(file);
+
+      parcerExecutor.execute(parcer);
+
+      MapBuilder mapBuilder = new SingleThreadMapBuilder(fileParseQueue, file.toString());
+
+      try
       {
-        // System.out.println("hapesnsoo");
-        res.offer(res.poll());
+        maps.put(mapBuilderExecutor.submit(mapBuilder));
+      } catch (InterruptedException e)
+      {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
       }
-    }
 
+    }
     try
     {
-      maps.put(new PosionCounterMap<Integer>());
+      maps.put(new MapFuturePoison<Integer>());
     } catch (InterruptedException e)
     {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-*/
-    
-    
-  }//run()
+
+    parcerExecutor.shutdown();
+    mapBuilderExecutor.shutdown();
+
+  }// run()
 
 }
