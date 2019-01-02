@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import ie.gmit.sw.counting.CountOne;
-import ie.gmit.sw.counting.CounterMap;
+import ie.gmit.sw.base.CountOne;
+import ie.gmit.sw.base.CounterMap;
 
 public class Test2
 {

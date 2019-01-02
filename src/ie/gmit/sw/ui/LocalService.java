@@ -40,13 +40,13 @@ import ie.gmit.sw.CosineDistanceResult;
 import ie.gmit.sw.ServiceData;
 import ie.gmit.sw.ShingleType;
 import ie.gmit.sw.UserSettings;
-import ie.gmit.sw.calculator.CosineCalculatorAll;
-import ie.gmit.sw.counting.CountOne;
-import ie.gmit.sw.counting.Counter;
-import ie.gmit.sw.counting.CounterMap;
-import ie.gmit.sw.counting.MapBuilder;
-import ie.gmit.sw.counting.SingleThreadMapBuilder;
-import ie.gmit.sw.fileshingleparser.FileShingleParser;
+import ie.gmit.sw.base.Calculator;
+import ie.gmit.sw.base.CountOne;
+import ie.gmit.sw.base.Counter;
+import ie.gmit.sw.base.CounterMap;
+import ie.gmit.sw.base.FileShingleParser;
+import ie.gmit.sw.base.MapBuilder;
+import ie.gmit.sw.base.SingleThreadMapBuilder;
 import ie.gmit.sw.ui.MainWindow1.WriteTask;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.value.ChangeListener;
@@ -92,129 +92,129 @@ import javafx.util.Callback;
 public class LocalService extends Service<String>
 {
 
-  ObservableList<CosineDistanceResult> resultsObservable;
+    ObservableList<CosineDistanceResult> resultsObservable;
+    private ServiceData serviceData = new ServiceData();
+    private BlockingQueue<Future<CounterMap<Integer>>> maps = new LinkedBlockingQueue<>(1000);
+    private BlockingQueue<Future<CosineDistanceResult>> results = new LinkedBlockingQueue<Future<CosineDistanceResult>>(
+            1000);
 
-  private ServiceData serviceData = new ServiceData();
+    private MainWindow mainWindow;
+    Future<CounterMap<Integer>> queryMap;
 
-  private BlockingQueue<Future<CounterMap<Integer>>> maps = new LinkedBlockingQueue<>(1000);
-
-  private BlockingQueue<Future<CosineDistanceResult>> results = new LinkedBlockingQueue<Future<CosineDistanceResult>>(
-      1000);
-
-  private MainWindow mainWindow;
-
-  Future<CounterMap<Integer>> queryMap;
-
-  public LocalService(ServiceData serviceData, ObservableList<CosineDistanceResult> resultsObservable,
-      MainWindow mainWindow, Future<CounterMap<Integer>> queryMap)
-  {
-    this.serviceData = serviceData;
-    this.resultsObservable = resultsObservable;
-    this.mainWindow = mainWindow;
-    this.queryMap = queryMap;
-  }
-
-  @Override
-  protected Task<String> createTask()
-  {
-
-    return new Task<String>()
+    public LocalService(ServiceData serviceData, ObservableList<CosineDistanceResult> resultsObservable,
+            MainWindow mainWindow, Future<CounterMap<Integer>> queryMap)
     {
-      public String call()
-      {
+        this.serviceData = serviceData;
+        this.resultsObservable = resultsObservable;
+        this.mainWindow = mainWindow;
+        this.queryMap = queryMap;
+    }
 
-        try
+    @Override
+    protected Task<String> createTask()
+    {
+        return new Task<String>()
         {
-          System.out.println(queryMap.get().size());
-        } catch (InterruptedException e)
-        {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        } catch (ExecutionException e)
-        {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
+            public String call()
+            {
 
-        // calculate again files
+                //count time
+                long start = System.nanoTime();
+                /*
+                try
+                {
+                    System.out.println(queryMap.get().size());
 
-        File[] files = serviceData.getFiles();
-        int totalFiles = files.length;
+                } catch (InterruptedException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (ExecutionException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+*/
+                // calculate again files
 
-        System.out.println(totalFiles);
-        
-        // progress bar
-        int totalWorkTaskBar = totalFiles * 2;
-        int workDoneTaskBar = 1;
-        updateProgress(workDoneTaskBar, totalWorkTaskBar);
+                File[] files = serviceData.getFiles();
+                int totalFiles = files.length;
 
-        Counter mba = new Counter(maps, files, serviceData.getSubjectDirectory(), serviceData.getShingleLength(),
-            serviceData.getShinglerType());
+                System.out.println(totalFiles);
+                /*
+                 * // progress bar int totalWorkTaskBar = totalFiles * 2; int workDoneTaskBar =
+                 * 1; updateProgress(workDoneTaskBar, totalWorkTaskBar);
+                 */
+                Counter mba = new Counter(maps, files, serviceData.getSubjectDirectory(),
+                        serviceData.getShingleLength(), serviceData.getShinglerType());
 
-        new Thread(mba).start();
+                new Thread(mba).start();
+                /*
+                 * // progress bar updateProgress(totalFiles / 4, totalWorkTaskBar);
+                 * workDoneTaskBar = totalFiles;
+                 */
+                Calculator cosineCalculator = null;
 
-        // progress bar
-        updateProgress(totalFiles / 4, totalWorkTaskBar);
-        workDoneTaskBar = totalFiles;
+                try
+                {
+                    try
+                    {
+                        cosineCalculator = new Calculator(maps, results, queryMap.get(), 10);
+                    } catch (InterruptedException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                } catch (ExecutionException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
 
-        CosineCalculatorAll cosineCalculator = null;
+                new Thread(cosineCalculator).start();
 
-        try
-        {
-          try
-          {
-            cosineCalculator = new CosineCalculatorAll(maps, results, queryMap.get(), 10);
-          } catch (InterruptedException e)
-          {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-        } catch (ExecutionException e)
-        {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
+                // progress bar
+                updateProgress(0, totalFiles);
+                int j = 0;
+                while (j++ < totalFiles)
+                {
+                    try
+                    {
+                        LinkedList<Future<CosineDistanceResult>> buffer = new LinkedList<>();
 
-        new Thread(cosineCalculator).start();
+                        Future<CosineDistanceResult> cosineFuture = null;
 
-        // progress bar
-        updateProgress(totalFiles, totalWorkTaskBar);
-        int j = 0;
-        while (j++ < totalFiles)
-        {
-          try
-          {
-            LinkedList<Future<CosineDistanceResult>> buffer = new LinkedList<>();
+                        cosineFuture = results.take();
 
-            Future<CosineDistanceResult> cosineFuture = null;
+                        CosineDistanceResult cm;
 
-            cosineFuture = results.take();
+                        cm = cosineFuture.get();
 
-            CosineDistanceResult cm;
+                        Platform.runLater(
+                                mainWindow.new AddToResultListTask<CosineDistanceResult>(resultsObservable, cm));
 
-            cm = cosineFuture.get();
+                        // progres bar
+                        updateProgress(j, totalFiles);
 
-            Platform.runLater(mainWindow.new AddToResultListTask<CosineDistanceResult>(resultsObservable, cm));
+                    } catch (InterruptedException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (ExecutionException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
 
-            // progres bar
-            updateProgress(workDoneTaskBar + j, totalWorkTaskBar);
+                }
 
-          } catch (InterruptedException e)
-          {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          } catch (ExecutionException e)
-          {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
+                long elapsedTime = System.nanoTime() - start;
+                System.out.println(elapsedTime);
+               return String.format("%f", elapsedTime/1000.0);
+              
 
-        }
+            }
+        };
 
-        return null;
-
-      }
-    };
-
-  }
+    }
 }

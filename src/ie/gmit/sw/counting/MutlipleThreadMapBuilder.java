@@ -7,11 +7,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import ie.gmit.sw.Poison;
+import ie.gmit.sw.base.ConcurrentCounterHashMap;
+import ie.gmit.sw.base.MapBuilder;
+import ie.gmit.sw.base.NumberPoison;
 
 //import ie.gmit.sw.SingleThreadMapBuilder.MyMap;
 
-public class MutlipleThreadMapBuilder implements MapBuilder
+public class MutlipleThreadMapBuilder extends MapBuilder
 {
   private final BlockingQueue<Number> queue;
 
@@ -74,7 +76,7 @@ public class MutlipleThreadMapBuilder implements MapBuilder
         }
         // System.out.println(n);
 
-        if (!(n instanceof Poison))
+        if (!(n instanceof NumberPoison))
         {
           // es.execute(new MapPutter((long) n));
           map1.add((Long) n);

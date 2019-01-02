@@ -32,13 +32,13 @@ import ie.gmit.sw.CosineDistanceResult;
 import ie.gmit.sw.ServiceData;
 import ie.gmit.sw.ShingleType;
 import ie.gmit.sw.UserSettings;
-import ie.gmit.sw.calculator.CosineCalculatorAll;
-import ie.gmit.sw.counting.CountOne;
-import ie.gmit.sw.counting.Counter;
-import ie.gmit.sw.counting.CounterMap;
-import ie.gmit.sw.counting.MapBuilder;
-import ie.gmit.sw.counting.SingleThreadMapBuilder;
-import ie.gmit.sw.fileshingleparser.FileShingleParser;
+import ie.gmit.sw.base.Calculator;
+import ie.gmit.sw.base.CountOne;
+import ie.gmit.sw.base.Counter;
+import ie.gmit.sw.base.CounterMap;
+import ie.gmit.sw.base.FileShingleParser;
+import ie.gmit.sw.base.MapBuilder;
+import ie.gmit.sw.base.SingleThreadMapBuilder;
 import ie.gmit.sw.ui.MainWindow.AddToResultListTask;
 import ie.gmit.sw.ui.MainWindow1.WriteTask;
 import javafx.beans.binding.ListBinding;
@@ -48,7 +48,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -83,6 +85,20 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
+import javafx.stage.Stage;
 
 public class MainWindow extends BorderPane
 {
@@ -558,6 +574,7 @@ public class MainWindow extends BorderPane
 
     borderPane.setLeft(mainVBox);
 
+    //start of calculations
     startButton.setOnAction((ActionEvent e) -> {
 
       // calculate query file
@@ -571,7 +588,17 @@ public class MainWindow extends BorderPane
       Platform.runLater(
           new AddTaskBar<ShowProgress>(new ShowProgress("my", localService.progressProperty()), progresBarsMainVBox));
 
-      localService.start();
+      localService.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+
+          @Override
+          public void handle(WorkerStateEvent t) {
+              System.out.println("call");
+              System.out.println("done:" + t.getSource().getValue());
+          }
+      });
+      
+     localService.start();
+
 
     });
 

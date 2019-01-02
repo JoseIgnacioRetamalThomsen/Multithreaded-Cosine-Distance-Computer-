@@ -14,12 +14,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import ie.gmit.sw.calculator.CosineCalculator;
-import ie.gmit.sw.counting.ConcurrentCounterHashMap;
-import ie.gmit.sw.counting.CounterMap;
-import ie.gmit.sw.counting.MapBuilder;
-import ie.gmit.sw.counting.SingleThreadMapBuilder;
-import ie.gmit.sw.fileshingleparser.FileShingleParser;
+import ie.gmit.sw.base.ConcurrentCounterHashMap;
+import ie.gmit.sw.base.CosineCalculator;
+import ie.gmit.sw.base.CounterMap;
+import ie.gmit.sw.base.FileShingleParser;
+import ie.gmit.sw.base.MapBuilder;
+import ie.gmit.sw.base.SingleThreadMapBuilder;
 
 public class Tester
 {
@@ -133,7 +133,7 @@ public class Tester
       System.out.println(dou.get().getCosineDistance());
     }
     /*
-     * long start = System.nanoTime(); BlockingQueue<Number> queue = new
+     *  BlockingQueue<Number> queue = new
      * LinkedBlockingQueue<>(100);
      * 
      * BlockingQueue<Number> queue1 = new LinkedBlockingQueue<>(100);

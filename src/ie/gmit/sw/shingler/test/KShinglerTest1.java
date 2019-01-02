@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import ie.gmit.sw.shingler.KShingler;
+import ie.gmit.sw.base.KShingler;
 
 class KShinglerTest1
 {

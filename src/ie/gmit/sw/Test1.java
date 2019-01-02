@@ -8,13 +8,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import ie.gmit.sw.calculator.CosineCalculatorAll;
-import ie.gmit.sw.counting.ConcurrentCounterHashMap;
-import ie.gmit.sw.counting.CounterMap;
-import ie.gmit.sw.counting.MapBuilder;
-import ie.gmit.sw.counting.Counter;
-import ie.gmit.sw.counting.SingleThreadMapBuilder;
-import ie.gmit.sw.fileshingleparser.FileShingleParser;
+import ie.gmit.sw.base.Calculator;
+import ie.gmit.sw.base.ConcurrentCounterHashMap;
+import ie.gmit.sw.base.Counter;
+import ie.gmit.sw.base.CounterMap;
+import ie.gmit.sw.base.FileShingleParser;
+import ie.gmit.sw.base.MapBuilder;
+import ie.gmit.sw.base.SingleThreadMapBuilder;
 
 public class Test1
 {

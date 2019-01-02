@@ -10,7 +10,6 @@ package ie.gmit.sw.base;
 
 import java.util.NoSuchElementException;
 
-import ie.gmit.sw.shingler.Shingable;
 import ie.gmit.sw.spliter.SpliteFunctions;
 
 /**
