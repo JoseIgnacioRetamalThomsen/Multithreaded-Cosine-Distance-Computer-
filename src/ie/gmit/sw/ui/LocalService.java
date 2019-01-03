@@ -2,7 +2,6 @@ package ie.gmit.sw.ui;
 
 import java.util.concurrent.BlockingQueue;
 
-import ie.gmit.sw.CosineDistanceResult;
 import ie.gmit.sw.ServiceData;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
@@ -36,10 +35,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import ie.gmit.sw.CosineDistanceResult;
 import ie.gmit.sw.ServiceData;
 import ie.gmit.sw.ShingleType;
-import ie.gmit.sw.UserSettings;
 import ie.gmit.sw.base.Calculator;
 import ie.gmit.sw.base.CountOne;
 import ie.gmit.sw.base.Counter;
@@ -47,6 +44,8 @@ import ie.gmit.sw.base.CounterMap;
 import ie.gmit.sw.base.FileShingleParser;
 import ie.gmit.sw.base.MapBuilder;
 import ie.gmit.sw.base.SingleThreadMapBuilder;
+import ie.gmit.sw.data.CosineDistanceResult;
+import ie.gmit.sw.data.UserSettings;
 import ie.gmit.sw.ui.MainWindow1.WriteTask;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.value.ChangeListener;
@@ -118,43 +117,21 @@ public class LocalService extends Service<String>
             public String call()
             {
 
-                //count time
+                // count time
                 long start = System.nanoTime();
-                /*
-                try
-                {
-                    System.out.println(queryMap.get().size());
 
-                } catch (InterruptedException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (ExecutionException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-*/
                 // calculate again files
-
                 File[] files = serviceData.getFiles();
                 int totalFiles = files.length;
 
-                System.out.println(totalFiles);
-                /*
-                 * // progress bar int totalWorkTaskBar = totalFiles * 2; int workDoneTaskBar =
-                 * 1; updateProgress(workDoneTaskBar, totalWorkTaskBar);
-                 */
+                // create counter thread with maps queue
                 Counter mba = new Counter(maps, files, serviceData.getSubjectDirectory(),
                         serviceData.getShingleLength(), serviceData.getShinglerType());
 
                 new Thread(mba).start();
-                /*
-                 * // progress bar updateProgress(totalFiles / 4, totalWorkTaskBar);
-                 * workDoneTaskBar = totalFiles;
-                 */
-                Calculator cosineCalculator = null;
 
+                // cosine calculator withs maps queue and results queue
+                Calculator cosineCalculator = null;
                 try
                 {
                     try
@@ -162,12 +139,12 @@ public class LocalService extends Service<String>
                         cosineCalculator = new Calculator(maps, results, queryMap.get(), 10);
                     } catch (InterruptedException e)
                     {
-                        // TODO Auto-generated catch block
+                        // nothing to do
                         e.printStackTrace();
                     }
                 } catch (ExecutionException e)
                 {
-                    // TODO Auto-generated catch block
+                    // nothing to do
                     e.printStackTrace();
                 }
 
@@ -180,8 +157,6 @@ public class LocalService extends Service<String>
                 {
                     try
                     {
-                        LinkedList<Future<CosineDistanceResult>> buffer = new LinkedList<>();
-
                         Future<CosineDistanceResult> cosineFuture = null;
 
                         cosineFuture = results.take();
@@ -198,20 +173,20 @@ public class LocalService extends Service<String>
 
                     } catch (InterruptedException e)
                     {
-                        // TODO Auto-generated catch block
+                        // nothing to do
                         e.printStackTrace();
                     } catch (ExecutionException e)
                     {
-                        // TODO Auto-generated catch block
+                        // nothing to do
                         e.printStackTrace();
                     }
 
                 }
 
                 long elapsedTime = System.nanoTime() - start;
-                System.out.println(elapsedTime);
-               return String.format("%f", elapsedTime/1000.0);
-              
+
+                //return time elapsed as string in seconds
+                return String.format("%.2f", elapsedTime / 1000000000.0);
 
             }
         };

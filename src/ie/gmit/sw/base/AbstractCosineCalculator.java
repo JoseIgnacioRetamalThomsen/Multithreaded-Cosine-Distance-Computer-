@@ -8,7 +8,8 @@
 package ie.gmit.sw.base;
 
 import java.util.concurrent.Callable;
-import ie.gmit.sw.CosineDistanceResult;
+
+import ie.gmit.sw.data.CosineDistanceResult;
 
 /**
  * Base clase for calculate cosine distance, set return type :

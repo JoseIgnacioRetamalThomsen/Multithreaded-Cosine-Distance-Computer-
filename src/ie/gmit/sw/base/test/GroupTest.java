@@ -1,10 +1,12 @@
-package ie.gmit.sw.base;
+package ie.gmit.sw.base.test;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import ie.gmit.sw.base.GroupShingler;
 
 public class GroupTest
 {

@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import ie.gmit.sw.CosineDistanceResult;
+import ie.gmit.sw.data.CosineDistanceResult;
 
 /**
  * Calculate cosine distance of two maps for big number of entrances.
@@ -106,7 +106,7 @@ public class CosineCalculatorBig extends AbstractCosineCalculator
         BigDecimal num3 = multFuture.get();
         BigDecimal res = num3.divide(num1, mc);
     
-        return new CosineDistanceResult(map2.getName(), res.doubleValue());
+        return new CosineDistanceResult(map2.getName(),map1.getName(), res.doubleValue());
 
     }
 

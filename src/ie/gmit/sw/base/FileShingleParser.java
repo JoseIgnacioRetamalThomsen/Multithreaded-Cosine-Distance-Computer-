@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.util.concurrent.BlockingQueue;
 
 import ie.gmit.sw.ShingleType;
+import ie.gmit.sw.poison.NumberPoison;
 
 /**
  * 

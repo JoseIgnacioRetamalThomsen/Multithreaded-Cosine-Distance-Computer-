@@ -1,4 +1,4 @@
-package ie.gmit.sw.base;
+package ie.gmit.sw.poison;
 
 public class NumberPoison extends Number
 {

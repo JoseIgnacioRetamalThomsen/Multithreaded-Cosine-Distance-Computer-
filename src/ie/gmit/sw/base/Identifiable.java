@@ -2,6 +2,8 @@ package ie.gmit.sw.base;
 
 public interface Identifiable
 {
-  void setName(String name);
-  String getName();
+    void setName(String name);
+
+    String getName();
+
 }

@@ -14,7 +14,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import ie.gmit.sw.CosineDistanceResult;
+import ie.gmit.sw.data.CosineDistanceResult;
+import ie.gmit.sw.poison.PosionCounterMap;
 
 public class Calculator implements Runnable
 {

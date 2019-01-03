@@ -6,10 +6,12 @@
  * 
  */
 
-package ie.gmit.sw.base;
+package ie.gmit.sw.poison;
 
 import java.util.Collection;
 import java.util.Set;
+
+import ie.gmit.sw.base.CounterMap;
 
 /**
  * Poison for Counter Map queue.
@@ -110,5 +112,7 @@ public class PosionCounterMap<K> implements CounterMap<K>
         // TODO Auto-generated method stub
         return null;
     }
+
+
 
 }

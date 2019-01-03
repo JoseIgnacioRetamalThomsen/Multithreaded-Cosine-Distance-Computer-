@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import ie.gmit.sw.base.ConcurrentCounterHashMap;
 import ie.gmit.sw.base.MapBuilder;
-import ie.gmit.sw.base.NumberPoison;
+import ie.gmit.sw.poison.NumberPoison;
 
 //import ie.gmit.sw.SingleThreadMapBuilder.MyMap;
 

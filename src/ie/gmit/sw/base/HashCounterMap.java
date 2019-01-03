@@ -23,7 +23,8 @@ public class HashCounterMap<K> implements  CounterMap<K>, Serializable, Cloneabl
  
   private HashMap<K, Integer> countingMap = null;
   
-  private String name;
+  private String fileName;
+  private String queryFileName;
 
   public HashCounterMap()
   {
@@ -108,14 +109,14 @@ public class HashCounterMap<K> implements  CounterMap<K>, Serializable, Cloneabl
   @Override
   public void setName(String name)
   {
-   this.name = name;
+   this.fileName = name;
     
   }
 
   @Override
   public String getName()
   {
-    return this.name;
+    return this.fileName;
   }
   
 }

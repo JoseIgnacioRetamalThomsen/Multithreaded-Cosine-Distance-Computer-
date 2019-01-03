@@ -20,6 +20,7 @@ import ie.gmit.sw.base.CounterMap;
 import ie.gmit.sw.base.FileShingleParser;
 import ie.gmit.sw.base.MapBuilder;
 import ie.gmit.sw.base.SingleThreadMapBuilder;
+import ie.gmit.sw.data.CosineDistanceResult;
 
 public class Tester
 {

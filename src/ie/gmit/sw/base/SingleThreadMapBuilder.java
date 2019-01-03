@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import ie.gmit.sw.poison.NumberPoison;
+
 /**
  * 
  * @author Jose I. Retamal

@@ -1,4 +1,6 @@
-package ie.gmit.sw;
+package ie.gmit.sw.data;
+
+import ie.gmit.sw.ShingleType;
 
 public class UserSettings
 {

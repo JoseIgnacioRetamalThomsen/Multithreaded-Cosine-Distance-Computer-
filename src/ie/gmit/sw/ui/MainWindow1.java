@@ -28,7 +28,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import ie.gmit.sw.CosineDistanceResult;
 import ie.gmit.sw.ShingleType;
 import ie.gmit.sw.Test1;
 import ie.gmit.sw.base.Calculator;
@@ -37,6 +36,7 @@ import ie.gmit.sw.base.CounterMap;
 import ie.gmit.sw.base.FileShingleParser;
 import ie.gmit.sw.base.MapBuilder;
 import ie.gmit.sw.base.SingleThreadMapBuilder;
+import ie.gmit.sw.data.CosineDistanceResult;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.geometry.Insets;

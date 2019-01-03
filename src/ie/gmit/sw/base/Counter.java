@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import ie.gmit.sw.ShingleType;
+import ie.gmit.sw.poison.MapFuturePoison;
 
 /**
  * Object that work as producer of {@code CounterMap<Integer>} , runs
