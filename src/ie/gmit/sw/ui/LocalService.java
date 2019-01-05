@@ -1,105 +1,59 @@
+/*
+ * A Multithreaded Cosine Distance Computer. 
+ * Object Oriented Programming. 
+ * Galway-Mayo Institute of technologies.
+ * Jose I. Retamal
+ * 
+ */
+
 package ie.gmit.sw.ui;
 
 import java.util.concurrent.BlockingQueue;
-
-import ie.gmit.sw.ServiceData;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.TextFieldListCell;
-import javafx.scene.effect.Blend;
-import javafx.scene.effect.BlendMode;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.InnerShadow;
-import javafx.scene.input.MouseEvent;
-
-import java.awt.Event;
 import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import ie.gmit.sw.ServiceData;
-import ie.gmit.sw.ShingleType;
 import ie.gmit.sw.base.Calculator;
-import ie.gmit.sw.base.CountOne;
 import ie.gmit.sw.base.Counter;
 import ie.gmit.sw.base.CounterMap;
-import ie.gmit.sw.base.FileShingleParser;
-import ie.gmit.sw.base.MapBuilder;
-import ie.gmit.sw.base.SingleThreadMapBuilder;
 import ie.gmit.sw.data.CosineDistanceResult;
-import ie.gmit.sw.data.UserSettings;
-import ie.gmit.sw.ui.MainWindow1.WriteTask;
-import javafx.beans.binding.ListBinding;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Service;
+import ie.gmit.sw.data.ServiceData;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.control.Label;
-
-import javafx.scene.control.ListView;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.TextArea;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-
-import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.Scene;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.stage.Stage;
-import javafx.util.Callback;
 
+/**
+ * Puts all class together for calculate cosine distance of a local query file against a
+ * local subject directory.&nsbp;place results in a {@code ObservableList} which show
+ * results in {@code MainWindows}, all data needed come in {@code Servicedata} object and
+ * the query {@code File} is entered as parameter.
+ * <p>
+ * 
+ * 
+ * @author Jose I. Retamal
+ *
+ */
 public class LocalService extends Service<String>
 {
 
-    ObservableList<CosineDistanceResult> resultsObservable;
-    private ServiceData serviceData = new ServiceData();
-    private BlockingQueue<Future<CounterMap<Integer>>> maps = new LinkedBlockingQueue<>(1000);
+    ObservableList<CosineDistanceResult> resultsObservable; // list of results that shows in MainWindow
+    private ServiceData serviceData = new ServiceData();// user settings and files names
+    private BlockingQueue<Future<CounterMap<Integer>>> maps = new LinkedBlockingQueue<>(1000);// queue that get maps
+                                                                                              // from Counter
     private BlockingQueue<Future<CosineDistanceResult>> results = new LinkedBlockingQueue<Future<CosineDistanceResult>>(
-            1000);
+            1000);// get results from Calculator
+    private MainWindow mainWindow;// reference to MainWindow
+    Future<CounterMap<Integer>> queryMap;// map of the query file
 
-    private MainWindow mainWindow;
-    Future<CounterMap<Integer>> queryMap;
-
+    /**
+     * Create a {@code LocalService} object with all parameters needed to run.
+     * 
+     * @param serviceData       user settings and file names
+     * @param resultsObservable list of results that shows in {@code MainWindows}
+     * @param mainWindow        reference to {@code MainWindows}
+     * @param queryMap          query file map
+     */
     public LocalService(ServiceData serviceData, ObservableList<CosineDistanceResult> resultsObservable,
             MainWindow mainWindow, Future<CounterMap<Integer>> queryMap)
     {
@@ -109,7 +63,12 @@ public class LocalService extends Service<String>
         this.queryMap = queryMap;
     }
 
-    @Override
+    /**
+     * Create all classes and perform all work, return the total time that take to perform the
+     * work.
+     * 
+     * @return Task<String> time to finish in seconds as string
+     */
     protected Task<String> createTask()
     {
         return new Task<String>()
@@ -136,7 +95,8 @@ public class LocalService extends Service<String>
                 {
                     try
                     {
-                        cosineCalculator = new Calculator(maps, results, queryMap.get(), 10);
+                        cosineCalculator = new Calculator(maps, results, queryMap.get(), 10,
+                                serviceData.getCosineType());
                     } catch (InterruptedException e)
                     {
                         // nothing to do
@@ -185,11 +145,22 @@ public class LocalService extends Service<String>
 
                 long elapsedTime = System.nanoTime() - start;
 
-                //return time elapsed as string in seconds
-                return String.format("%.2f", elapsedTime / 1000000000.0);
+                // return time elapsed as string in seconds
+                return timeToString(elapsedTime);
 
             }
         };
 
+    }
+
+    /**
+     * Transform time in {@code long}, nanosecond to a string in seconds
+     * 
+     * @param elapsedTime time to transform
+     * @return transformed time
+     */
+    private String timeToString(long elapsedTime)
+    {
+        return String.format("%.2f", elapsedTime / 1000000000.0);
     }
 }

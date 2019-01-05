@@ -107,6 +107,8 @@ public class KShingler implements Shingable
    */
   public int lastShingle()
   {
+     if(!hasLast()) throw  new NoSuchElementException();
+     
     int hash = line.substring(position, line.length()).toString().hashCode();
     line = new StringBuilder();
     position = 0;

@@ -10,8 +10,6 @@ package ie.gmit.sw.base;
 
 import java.util.NoSuchElementException;
 
-import ie.gmit.sw.spliter.SpliteFunctions;
-
 /**
  * Implementation of shingable for create a word group shingles.
  * <p>
@@ -42,7 +40,7 @@ public class GroupShingler implements Shingable
   private int bufferPosition;
   private boolean isFirst = true;
 
-  private SpliteFunctions sp = new SpliteFunctions();
+  private Splite sp = new Splite();
 
   /**
    * Create a group shingles that will produce shingles with selected size of

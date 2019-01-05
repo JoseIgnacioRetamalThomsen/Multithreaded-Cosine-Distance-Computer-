@@ -15,10 +15,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.BlockingQueue;
 
-import ie.gmit.sw.ShingleType;
 import ie.gmit.sw.poison.NumberPoison;
 
 /**
+ * Parse file into shingles, read file from IO and create shingles using {@code Shingable}
+ * object.
  * 
  * @author Jose I. Retamal
  *
@@ -30,14 +31,17 @@ public class FileShingleParser implements Runnable
     private BufferedReader fileIn;
     private String line;
     private Shingable shingler;
+    private int threandsInBuilding;
 
     /**
+     * Create object, File to parse must be set before create object with this constructor.
      * 
      * @param queue       for put produced integer shingles
      * @param shingleSize size of each shingle
      * @param shingleType can be group shingle or k-mers shingle
+     * @param threandsInBuilding number of threads that will be taken shingles from output queue
      */
-    public FileShingleParser(BlockingQueue<Number> queue, int shingleSize, ShingleType shingleType)
+      public FileShingleParser(BlockingQueue<Number> queue, int shingleSize, ShingleType shingleType,int threandsInBuilding)
     {
         this.queue = queue;
 
@@ -51,11 +55,12 @@ public class FileShingleParser implements Runnable
             break;
 
         }
+        this.threandsInBuilding = threandsInBuilding;
 
     }
 
     /**
-     * Set file for read and produce shingles
+     * Set file for read and produce shingles, must be done before run.
      * 
      * @param file file to read
      * @return true if the file exist and can be read
@@ -85,12 +90,11 @@ public class FileShingleParser implements Runnable
     }
 
     /**
-     * Runs from file, calculate shingles using {@code Shingler} and then put the
-     * shingle in the queue.
+     * Runs from file, calculate shingles using {@code Shingler} and then put the shingle in
+     * the queue.
      */
     public void run()
     {
-
         try
         {
             while ((line = fileIn.readLine()) != null)
@@ -103,15 +107,17 @@ public class FileShingleParser implements Runnable
 
                 }
 
-            } // while ((line = fileIn.readLine()) != null)
+            }
 
             if (shingler.hasLast())
             {
                 queue.put(shingler.lastShingle());
 
+                
             }
-
-            queue.put(new NumberPoison());
+            //put one poison for each thread that would build the maps
+            for (int i = 0; i < threandsInBuilding; i++)
+                queue.put(new NumberPoison());
 
         } catch (IOException e)
         {
@@ -124,11 +130,6 @@ public class FileShingleParser implements Runnable
             e.printStackTrace();
 
         }
-        /*
-         * catch (Exception e) { // TODO Auto-generated catch block
-         * 
-         * e.printStackTrace(); }
-         */
 
     }
 

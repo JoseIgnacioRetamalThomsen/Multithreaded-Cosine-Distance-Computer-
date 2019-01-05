@@ -11,42 +11,22 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.effect.Blend;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.MouseEvent;
-
-import java.awt.Event;
 import java.io.File;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import ie.gmit.sw.ServiceData;
-import ie.gmit.sw.ShingleType;
-import ie.gmit.sw.base.Calculator;
 import ie.gmit.sw.base.CountOne;
-import ie.gmit.sw.base.Counter;
 import ie.gmit.sw.base.CounterMap;
-import ie.gmit.sw.base.FileShingleParser;
-import ie.gmit.sw.base.MapBuilder;
-import ie.gmit.sw.base.SingleThreadMapBuilder;
+import ie.gmit.sw.base.ShingleType;
 import ie.gmit.sw.data.CosineDistanceResult;
-import ie.gmit.sw.data.UserSettings;
-import ie.gmit.sw.ui.MainWindow.AddToResultListTask;
-import ie.gmit.sw.ui.MainWindow1.WriteTask;
-import javafx.beans.binding.ListBinding;
+import ie.gmit.sw.data.ServiceData;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
@@ -63,43 +43,16 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.Label;
-
 import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.TextArea;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
-import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import javafx.application.Application;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
-import javafx.stage.Stage;
 
 public class MainWindow extends BorderPane
 {
@@ -505,9 +458,8 @@ public class MainWindow extends BorderPane
                 @Override
                 public void handle(WorkerStateEvent t)
                 {
-                    System.out.println("call");
-                    System.out.println("done:" + t.getSource().getValue());
-                    Platform.runLater(new AddTextToLabel<Label>("done: " + t.getSource().getValue() + " seconds",resultLabel) );
+                    Platform.runLater(
+                            new AddTextToLabel<Label>("done: " + t.getSource().getValue() + " seconds", resultLabel));
                 }
             });
 
@@ -519,7 +471,6 @@ public class MainWindow extends BorderPane
 
     // task for thread to add to UI
 
-    
     public class AddTextToLabel<V> extends Task<V>
     {
         String result;
@@ -534,12 +485,13 @@ public class MainWindow extends BorderPane
         @Override
         protected V call() throws Exception
         {
-            target.setText(result);;
+            target.setText(result);
+            ;
             return null;
         }
 
     }
-    
+
     public class AddTaskBar<V> extends Task<V>
     {
         ShowProgress sp;

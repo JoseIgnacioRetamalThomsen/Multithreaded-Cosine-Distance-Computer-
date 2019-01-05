@@ -1,13 +1,19 @@
 package ie.gmit.sw.data;
 
-public class CosineDistanceResult
+import java.io.Serializable;
+
+public class CosineDistanceResult implements Serializable
 {
 
   /* (non-Javadoc)
    * @see java.lang.Object#toString()
    */
  
-  private String fileName;
+  /**
+     * 
+     */
+    private static final long serialVersionUID = 3794392950694567157L;
+private String fileName;
  private String queryFileName;
   private Double cosineDistance;
  

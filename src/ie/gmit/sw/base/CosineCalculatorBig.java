@@ -19,6 +19,10 @@ import ie.gmit.sw.data.CosineDistanceResult;
 
 /**
  * Calculate cosine distance of two maps for big number of entrances.
+ * <p>
+ * The amount of shingles from a file is related to the size of the shingles and the size
+ * of the file, for example, a file of medium size can have a big amount of shingles if we
+ * use k-mers shingle of size 1 character.
  * 
  * @author Jose I. Retamal
  *
@@ -54,7 +58,7 @@ public class CosineCalculatorBig extends AbstractCosineCalculator
     public CosineDistanceResult call() throws Exception
     {
 
-        //submit threads to executor
+        // submit threads to executor
         sumQueryMapFuture = executor.submit(new Callable<BigDecimal>()
         {
             public BigDecimal call() throws Exception
@@ -63,7 +67,7 @@ public class CosineCalculatorBig extends AbstractCosineCalculator
                 for (int i : map1.getCountAll())
                     sum = sum.add(new BigDecimal(i).pow(2));
                 return sum;
-                
+
             }
 
         });
@@ -96,7 +100,7 @@ public class CosineCalculatorBig extends AbstractCosineCalculator
 
         executor.shutdown();
 
-        //calculate  and then return cosine distance
+        // calculate and then return cosine distance
         MathContext mc = new MathContext(4, RoundingMode.HALF_UP);
         BigDecimal num1 = sumQueryMapFuture.get();
         BigDecimal num2 = sumSubjectMapFuture.get();
@@ -105,15 +109,14 @@ public class CosineCalculatorBig extends AbstractCosineCalculator
         num1 = num1.multiply(num2);
         BigDecimal num3 = multFuture.get();
         BigDecimal res = num3.divide(num1, mc);
-    
-        return new CosineDistanceResult(map2.getName(),map1.getName(), res.doubleValue());
+
+        return new CosineDistanceResult(map2.getName(), map1.getName(), res.doubleValue());
 
     }
 
     /*
-     * From
-     * https://stackoverflow.com/questions/13649703/square-root-of-bigdecimal-in-
-     * java Don't give BigDecimal precision but is not really needed.
+     * From https://stackoverflow.com/questions/13649703/square-root-of-bigdecimal-in- java
+     * Don't give BigDecimal precision but is not really needed.
      */
     private BigDecimal sqrt1(BigDecimal value)
     {

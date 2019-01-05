@@ -21,6 +21,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import ie.gmit.sw.poison.NumberPoison;
 
 /**
+ * Build map of shingles from a file using a single thread, good enough for the design
+ * because CounterMaps can counts one shingle at a time.
+ * <p>
+ * Use a input of Number that are the hash code of the shingles(they are basically used as
+ * shingles), count appearance of each number in the queue using a
+ * {@code CounterMap<Integer>}.
+ * </P>
  * 
  * @author Jose I. Retamal
  *
@@ -33,8 +40,8 @@ public class SingleThreadMapBuilder extends MapBuilder
     private CounterMap<Integer> countingMap = new ConcurrentCounterHashMap<>();
 
     /**
-     * Create a {@code Callable} {@code SingleThreadMapBuilder} that counts shingles
-     * from queue.
+     * Create a {@code Callable} {@code SingleThreadMapBuilder} that counts shingles from
+     * queue.
      * <p>
      * Must be executed in a {@code Executr}
      * </p>
