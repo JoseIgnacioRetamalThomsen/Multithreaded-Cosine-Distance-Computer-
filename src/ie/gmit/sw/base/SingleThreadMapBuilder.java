@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import ie.gmit.sw.poison.NumberPoison;
+import ie.gmit.sw.base.poison.NumberPoison;
 
 /**
  * Build map of shingles from a file using a single thread, good enough for the design

@@ -1,11 +1,22 @@
-package ie.gmit.sw.poison;
+/*
+ * A Multithreaded Cosine Distance Computer. 
+ * Object Oriented Programming. 
+ * Galway-Mayo Institute of technologies.
+ * 
+ */
 
+package ie.gmit.sw.base.poison;
+
+/**
+ * Poison for {@code Number} queue.
+ * 
+ * @author Jose I. Retamal
+ *
+ */
 public class NumberPoison extends Number
 {
 
-  /**
-   * 
-   */
+  
   private static final long serialVersionUID = 1L;
 
   @Override

@@ -6,7 +6,7 @@
  * 
  */
 
-package ie.gmit.sw.poison;
+package ie.gmit.sw.base.poison;
 
 import java.util.Collection;
 import java.util.Set;

@@ -11,8 +11,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import ie.gmit.sw.base.poison.PosionCounterMap;
 import ie.gmit.sw.data.CosineDistanceResult;
-import ie.gmit.sw.poison.PosionCounterMap;
 
 /**
  * Calculate the cosine distance of several {@code CounterMap<Integer>} , compare one

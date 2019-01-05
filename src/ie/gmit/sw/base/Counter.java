@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import ie.gmit.sw.poison.MapFuturePoison;
+import ie.gmit.sw.base.poison.MapFuturePoison;
 
 /**
  * Produce {@code CounterMap<Integer>}(which are a count of the selected type of shingles

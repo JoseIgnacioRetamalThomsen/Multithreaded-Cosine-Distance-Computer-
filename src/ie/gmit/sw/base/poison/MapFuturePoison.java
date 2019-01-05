@@ -1,14 +1,24 @@
-package ie.gmit.sw.poison;
+/*
+ * A Multithreaded Cosine Distance Computer. 
+ * Object Oriented Programming. 
+ * Galway-Mayo Institute of technologies.
+ * 
+ */
 
-import java.util.concurrent.Callable;
+package ie.gmit.sw.base.poison;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import ie.gmit.sw.base.CounterMap;
-
+/**
+ * Poison for {@code CounterMap} queue.
+ * 
+ * @author Jose I. Retamal
+ *
+ * @param <V>
+ */
 public class MapFuturePoison<V>  implements Future<CounterMap<Integer>>
 {
 

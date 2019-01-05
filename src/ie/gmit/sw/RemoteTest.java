@@ -15,9 +15,9 @@ import javax.naming.spi.DirStateFactory.Result;
 import ie.gmit.sw.base.CountOne;
 import ie.gmit.sw.base.CounterMap;
 import ie.gmit.sw.base.ShingleType;
+import ie.gmit.sw.base.poison.CosineDistanceResultPoison;
 import ie.gmit.sw.data.CosineDistanceResult;
 import ie.gmit.sw.data.ServiceData;
-import ie.gmit.sw.poison.CosineDistanceResultPoison;
 
 
 

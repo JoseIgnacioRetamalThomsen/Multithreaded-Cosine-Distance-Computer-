@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.BlockingQueue;
 
-import ie.gmit.sw.poison.NumberPoison;
+import ie.gmit.sw.base.poison.NumberPoison;
 
 /**
  * Parse file into shingles, read file from IO and create shingles using {@code Shingable}

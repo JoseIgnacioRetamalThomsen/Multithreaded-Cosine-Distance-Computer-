@@ -11,7 +11,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import ie.gmit.sw.poison.NumberPoison;
+
+import ie.gmit.sw.base.poison.NumberPoison;
 
 /**
  * Builds map using multiple threads, take number shingles from a FileShingleParser and

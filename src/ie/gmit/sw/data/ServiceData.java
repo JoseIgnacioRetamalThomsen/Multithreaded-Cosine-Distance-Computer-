@@ -237,4 +237,17 @@ public class ServiceData implements Serializable
 
     }
 
+    /**
+     * Used for check if all settings are done for perform service.
+     * 
+     * @return true if all settings are fine
+     */
+    public boolean isReady()
+    {
+        if (this.isQueryFile() && this.isSubjectDirectory())
+            return true;
+        else
+            return false;
+    }
+
 }

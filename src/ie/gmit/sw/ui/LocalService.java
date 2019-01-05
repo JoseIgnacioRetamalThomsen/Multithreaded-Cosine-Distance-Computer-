@@ -71,38 +71,35 @@ public class LocalService extends Service<String>
      */
     protected Task<String> createTask()
     {
+        //Anonymous task for return
         return new Task<String>()
         {
             public String call()
             {
-
                 // count time
                 long start = System.nanoTime();
 
-                // calculate again files
+                // subject files
                 File[] files = serviceData.getFiles();
                 int totalFiles = files.length;
 
-                // create counter thread with maps queue
+                // create and start counter thread with maps queue
                 Counter mba = new Counter(maps, files, serviceData.getSubjectDirectory(),
                         serviceData.getShingleLength(), serviceData.getShinglerType());
-
                 new Thread(mba).start();
 
                 // cosine calculator withs maps queue and results queue
                 Calculator cosineCalculator = null;
                 try
                 {
-                    try
-                    {
-                        cosineCalculator = new Calculator(maps, results, queryMap.get(), 10,
-                                serviceData.getCosineType());
-                    } catch (InterruptedException e)
-                    {
-                        // nothing to do
-                        e.printStackTrace();
-                    }
+
+                    cosineCalculator = new Calculator(maps, results, queryMap.get(), 10, serviceData.getCosineType());
+
                 } catch (ExecutionException e)
+                {
+                    // nothing to do
+                    e.printStackTrace();
+                } catch (InterruptedException e)
                 {
                     // nothing to do
                     e.printStackTrace();
@@ -112,6 +109,7 @@ public class LocalService extends Service<String>
 
                 // progress bar
                 updateProgress(0, totalFiles);
+                // get results and place in mainWindow
                 int j = 0;
                 while (j++ < totalFiles)
                 {
@@ -128,7 +126,7 @@ public class LocalService extends Service<String>
                         Platform.runLater(
                                 mainWindow.new AddToResultListTask<CosineDistanceResult>(resultsObservable, cm));
 
-                        // progres bar
+                        // progress bar
                         updateProgress(j, totalFiles);
 
                     } catch (InterruptedException e)
@@ -149,7 +147,7 @@ public class LocalService extends Service<String>
                 return timeToString(elapsedTime);
 
             }
-        };
+        };//end task
 
     }
 

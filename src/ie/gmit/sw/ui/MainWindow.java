@@ -53,7 +53,6 @@ import javafx.application.Platform;
 import javafx.scene.control.ListCell;
 import javafx.util.Callback;
 
-
 public class MainWindow extends BorderPane
 {
 
@@ -130,11 +129,15 @@ public class MainWindow extends BorderPane
         Label labelName = new Label("File Name");
         labelName.setMinWidth(300);
         labelName.setMaxWidth(300);
+        Label labelNameQuery = new Label("Query File");
+        labelNameQuery.setMinWidth(300);
+        labelNameQuery.setMaxWidth(300);
+
         Label labelCosDistance = new Label("Cosine Distance");
         labelCosDistance.setMinWidth(100);
         labelCosDistance.setMaxWidth(100);
         labelCosDistance.setTextAlignment(TextAlignment.CENTER);
-        resultsHeaderHBox.getChildren().addAll(labelName, labelCosDistance);
+        resultsHeaderHBox.getChildren().addAll(labelName, labelNameQuery, labelCosDistance);
         // add header and result view to result box
         resultsVBox.getChildren().addAll(resultsHeaderHBox, resultsView);
         // add to center main
@@ -154,19 +157,26 @@ public class MainWindow extends BorderPane
 
             HBox hb = new HBox();
 
+            // subject file name
             Label labelName = new Label();
             labelName.setMinWidth(300);
             labelName.setMaxWidth(300);
+            // query file name
+            Label labelSubjectName = new Label();
+            labelSubjectName.setMinWidth(300);
+            labelSubjectName.setMaxWidth(300);
+            // cosine distance
             Label labelCosDistance = new Label();
             labelCosDistance.setMinWidth(100);
             labelCosDistance.setMaxWidth(100);
             labelCosDistance.setTextAlignment(TextAlignment.CENTER);
-            hb.getChildren().addAll(labelName, labelCosDistance);
+            hb.getChildren().addAll(labelName, labelSubjectName, labelCosDistance);
 
             if (item != null)
             {
-                // rect.setFill(Color.web(item));
+                // set text nems
                 labelName.setText(item.getFileName());
+                labelSubjectName.setText(item.getQueryFileName());
                 labelCosDistance.setText(String.format("%.2f %s", item.getCosineDistancePerCent(), "%"));
                 setGraphic(hb);
             }
@@ -416,7 +426,8 @@ public class MainWindow extends BorderPane
         // last
         // create and add container
         final HBox startButtonContainer = new HBox();
-        mainVBox.getChildren().add(startButtonContainer);
+        final HBox messageContainer = new HBox();
+        mainVBox.getChildren().addAll(startButtonContainer, messageContainer);
 
         startButtonContainer.setPadding(new Insets(7, 0, 15, 0));
         startButtonContainer.setSpacing(10);
@@ -430,41 +441,55 @@ public class MainWindow extends BorderPane
         startButtonContainer.getChildren().addAll(startButton);
         HBox.setHgrow(startButtonContainer, Priority.ALWAYS);
 
+        //mesagge 
+        style4(messageContainer, new Insets(1, 12, 15, 12));// add style
+
+        final Label finalMessage = new Label("");// for confirm input
+        messageContainer.getChildren().add(finalMessage);
+        
+        
         borderPane.setLeft(mainVBox);
 
         /*
+         * 
          * Main Code, start of calculations
+         * 
          */
         startButton.setOnAction((ActionEvent e) -> {
 
-            // calculate query file
-            CountOne c = new CountOne(serviceData.getShingleLength(), serviceData.getShinglerType());
-            c.setFile(serviceData.getQueryFile());
-
-            Future<CounterMap<Integer>> queryMap = c.calculate();
-
-            LocalService localService = new LocalService(serviceData, resultsObservable, this, queryMap);
-
-            Label resultLabel = new Label();
-
-            // add task bar to right pane
-            Platform.runLater(new AddTaskBar<ShowProgress>(new ShowProgress(serviceData.getQueryFile().toString(),
-                    localService.progressProperty(), resultLabel), progresBarsMainVBox));
-
-            // add result when success
-            localService.setOnSucceeded(new EventHandler<WorkerStateEvent>()
+            if (serviceData.isReady())
             {
+                // calculate query file
+                CountOne c = new CountOne(serviceData.getShingleLength(), serviceData.getShinglerType());
+                c.setFile(serviceData.getQueryFile());
 
-                @Override
-                public void handle(WorkerStateEvent t)
+                Future<CounterMap<Integer>> queryMap = c.calculate();
+
+                LocalService localService = new LocalService(serviceData, resultsObservable, this, queryMap);
+
+                Label resultLabel = new Label();
+
+                // add task bar to right pane
+                Platform.runLater(new AddTaskBar<ShowProgress>(new ShowProgress(serviceData.getQueryFile().toString(),
+                        localService.progressProperty(), resultLabel), progresBarsMainVBox));
+
+                // add result when success
+                localService.setOnSucceeded(new EventHandler<WorkerStateEvent>()
                 {
-                    Platform.runLater(
-                            new AddTextToLabel<Label>("done: " + t.getSource().getValue() + " seconds", resultLabel));
-                }
-            });
 
-            localService.start();
+                    @Override
+                    public void handle(WorkerStateEvent t)
+                    {
+                        Platform.runLater(new AddTextToLabel<Label>("done: " + t.getSource().getValue() + " seconds",
+                                resultLabel));
+                    }
+                });
 
+                localService.start();
+            } else
+            {
+                finalMessage.setText("Please input query file and subject dirctory.");
+            }
         });
 
     }

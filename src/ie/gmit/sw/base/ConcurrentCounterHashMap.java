@@ -27,9 +27,7 @@ public class ConcurrentCounterHashMap<K> implements Cloneable, Serializable, Cou
      * Use a inner ConcurrentHashMap
      */
     private static final long serialVersionUID = -5419016465194643642L;
-
     private String name;
-
     private ConcurrentHashMap<K, Integer> countingMap = null;
 
     /**
