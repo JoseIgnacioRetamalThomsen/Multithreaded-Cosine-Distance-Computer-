@@ -30,11 +30,29 @@ import ie.gmit.sw.data.CosineDistanceResult;
 public class CosineCalculatorBig extends AbstractCosineCalculator
 {
 
+    /**
+     * input map1, normally query file map
+     */
     private CounterMap<Integer> map1;
+    /**
+     * input map2, normally subject file map
+     */
     private CounterMap<Integer> map2;
+    /**
+     * for internal thread that calculate magnitude
+     */
     private Future<BigDecimal> sumQueryMapFuture;
+    /**
+     * for internal thread that calculate magnitude
+     */
     private Future<BigDecimal> sumSubjectMapFuture;
+    /**
+     * for internal thread that calculate multiplication between common shingles
+     */
     private Future<BigDecimal> multFuture;
+    /**
+     * runs the 3 internal threads
+     */
     private ExecutorService executor = Executors.newFixedThreadPool(3);
 
     /**

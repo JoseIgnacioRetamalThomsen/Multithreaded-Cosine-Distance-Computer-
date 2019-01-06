@@ -26,10 +26,22 @@ import ie.gmit.sw.base.poison.NumberPoison;
  */
 public class MutlipleThreadMapBuilder extends MapBuilder
 {
-    private final BlockingQueue<Number> queue; // input shingle number queue
-    CounterMap<Integer> map = new ConcurrentCounterHashMap<>(); // CounterMap for count and return
-    ExecutorService es; // execute the number of thread
-    private int threadNumber; // number of thread that count on map.
+    /**
+     * input shingle number queue
+     */
+    private final BlockingQueue<Number> queue;
+    /**
+     * CounterMap for count and return
+     */
+    CounterMap<Integer> map = new ConcurrentCounterHashMap<>();
+    /**
+     * execute the number of thread
+     */
+    ExecutorService es;
+    /**
+     * number of thread that count on map
+     */
+    private int threadNumber;
 
     /**
      * Create a object with all the parameters needed to execute.

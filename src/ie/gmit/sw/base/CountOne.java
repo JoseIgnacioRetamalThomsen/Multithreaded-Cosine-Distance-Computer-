@@ -21,13 +21,37 @@ import java.util.concurrent.Future;
  */
 public class CountOne
 {
-    private int queuuSize = 1000;// Parser queue size
+    /**
+     * Parser queue size
+     */
+    private int queuuSize = 1000;
+    /**
+     * size of shingles
+     */
     private int shingleSize;
+    /**
+     * type of shingle can be k_mers or group word
+     */
     private ShingleType shingleType;
+    /**
+     * For execute future
+     */
     private ExecutorService mapBuilderExecutor = Executors.newFixedThreadPool(1);
+    /**
+     * file to compute
+     */
     private File file;
+    /**
+     * for transfer shingles
+     */
     private BlockingQueue<Number> queue;
+    /**
+     * parse file and put shingle in queue
+     */
     private FileShingleParser parser;
+    /**
+     * number of threads
+     */
     private int numberOfThread = 10;
 
     /**

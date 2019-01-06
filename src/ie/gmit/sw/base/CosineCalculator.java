@@ -33,12 +33,30 @@ import ie.gmit.sw.data.CosineDistanceResult;
  */
 public class CosineCalculator extends AbstractCosineCalculator
 {
-    private CounterMap<Integer> map1;// input map
-    private CounterMap<Integer> map2;// input map
-    Future<Double> sumQueryMapFuture;// for internal thread
-    Future<Double> sumSubjectMapFuture;// for internal thread
-    Future<Double> multFuture;// for internal thread
-    ExecutorService executor = Executors.newFixedThreadPool(3);// runs the 3 internal threads
+    /**
+     * input map1, normally query file map
+     */
+    private CounterMap<Integer> map1;//
+    /**
+     * input map2, normally subject file map
+     */
+    private CounterMap<Integer> map2;
+    /**
+     * for internal thread that calculate magnitude
+     */
+    private Future<Double> sumQueryMapFuture;
+    /**
+     * for internal thread that calculate magnitude
+     */
+    private Future<Double> sumSubjectMapFuture;
+    /**
+     * for internal thread that calculate multiplication between common shingles
+     */
+    private Future<Double> multFuture;
+    /**
+     * runs the 3 internal threads
+     */
+    private ExecutorService executor = Executors.newFixedThreadPool(3);
 
     /**
      * Create a CosineCalculator with all parameters needed, then the object must be executed

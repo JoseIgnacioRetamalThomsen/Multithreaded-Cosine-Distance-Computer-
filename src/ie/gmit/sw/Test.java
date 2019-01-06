@@ -1,6 +1,6 @@
 package ie.gmit.sw;
 
-import ie.gmit.sw.ui.RemoteThread;
+import ie.gmit.sw.ui.RemoteThreadConnector;
 
 public class Test
 {

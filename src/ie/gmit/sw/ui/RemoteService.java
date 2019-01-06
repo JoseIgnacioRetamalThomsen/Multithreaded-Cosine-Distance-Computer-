@@ -1,38 +1,82 @@
+/*
+ * A Multithreaded Cosine Distance Computer. 
+ * Object Oriented Programming. 
+ * Galway-Mayo Institute of technologies.
+ * Jose I. Retamal
+ * 
+ */
+
 package ie.gmit.sw.ui;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.util.concurrent.ExecutionException;
-
-import ie.gmit.sw.base.CountOne;
 import ie.gmit.sw.base.CounterMap;
-import ie.gmit.sw.base.ShingleType;
 import ie.gmit.sw.base.poison.CosineDistanceResultPoison;
 import ie.gmit.sw.data.CosineDistanceResult;
 import ie.gmit.sw.data.ServiceData;
+import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
+/**
+ * Perform cosine calculations connected to a remote client.
+ * 
+ * @author Jose I. Retamal
+ *
+ */
 public class RemoteService extends Service<String>
 {
-    Socket individualconnection;
-    int socketid;
-    ObjectOutputStream out;
-    ObjectInputStream in;
-    String message;
-    int selection;
+    /**
+     * out stream object reference
+     */
+    private ObjectOutputStream out;
+    /**
+     * in stream object reference
+     */
+    private ObjectInputStream in;
+    /**
+     * map to send to client for calculate cosine distance
+     */
+    private CounterMap<Integer> cmIn;
+    /**
+     * data for perform service
+     */
+    private ServiceData serviceData;
+    /**
+     * reference to MainWindow
+     */
+    private MainWindow mainWindow;
 
-    public RemoteService(Socket socket, int socketId)
+    /**
+     * // reference list of results that shows in MainWindow
+     */
+    private ObservableList<CosineDistanceResult> resultsObservable;
+
+    /**
+     * Create the service for be ready to run
+     * 
+     * @param cs                in out stream objects data
+     * @param cmIn              map of query file
+     * @param serviceData       data about how to perform single service
+     * @param mainWindow        reference to MainWindow
+     * @param resultsObservable reference to results list in MainWindow
+     */
+    public RemoteService(ConnectionData cs, CounterMap<Integer> cmIn, ServiceData serviceData, MainWindow mainWindow,
+            ObservableList<CosineDistanceResult> resultsObservable)
     {
-
-        individualconnection = socket;
-        this.socketid = socketId;
+        this.out = cs.getOut();
+        this.in = cs.getIn();
+        this.cmIn = cmIn;
+        this.serviceData = serviceData;
+        this.mainWindow = mainWindow;
+        this.resultsObservable = resultsObservable;
     }
 
-    @Override
+    /**
+     * Create and run service task, return the time that take to perform the task.
+     */
     protected Task<String> createTask()
     {
         return new Task<String>()
@@ -41,79 +85,72 @@ public class RemoteService extends Service<String>
             @Override
             protected String call() throws Exception
             {
+                // start counting time
+                long start = System.nanoTime();
                 try
                 {
 
-                    out = new ObjectOutputStream(individualconnection.getOutputStream());
+                    /*
+                     * out map
+                     */
+                    // send map
+                    out.writeObject(cmIn);
                     out.flush();
-                    in = new ObjectInputStream(individualconnection.getInputStream());
-                    System.out.println(
-                            "Connection" + socketid + " from IP address " + individualconnection.getInetAddress());
+                    /*
+                     * out service data
+                     */
+                    // send service data
+                    out.writeObject(serviceData);
+                    out.flush();
 
-                    // create map for test
-                    CountOne c1 = new CountOne(5, ShingleType.K_Mers);
-                    c1.setFile(new File("w"));
+                    /*
+                     * in number of files
+                     * 
+                     */
+                    int totalNumberOfFiles = Integer.parseInt((String) in.readObject());
 
-                    // create serviceData for test
-                    ServiceData serviceData = new ServiceData();
-                    serviceData.setQueryFile(new File("w"));
-
-                    try
+                    // progress bar
+                    updateProgress(0, totalNumberOfFiles);
+                    // wait for results
+                    int j = 0;
+                    while (true)
                     {
+                        // read 1 cosine result
+                        CosineDistanceResult result = (CosineDistanceResult) in.readObject();
 
-                        CounterMap<Integer> cmIn = c1.calculate().get();
+                        // finish if is poison
+                        if (result instanceof CosineDistanceResultPoison)
+                            break;
 
-                        // send map
-                        out.writeObject(cmIn);
-                        // send service data
-                        out.writeObject(serviceData);
+                        // add result to MainWindow
+                        Platform.runLater(
+                                mainWindow.new AddToResultListTask<CosineDistanceResult>(resultsObservable, result));
 
-                        // wait for results
-                        while (true)
-                        {
+                        // update progress bar
+                        updateProgress(++j, totalNumberOfFiles);
 
-                            CosineDistanceResult result = (CosineDistanceResult) in.readObject();
-                            if (result instanceof CosineDistanceResultPoison)
-                                break;
-                            System.out.println(result.getCosineDistance());
-                        }
-                    } catch (InterruptedException e)
-                    {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (ExecutionException e)
-                    {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (ClassNotFoundException e)
-                    {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
                     }
-
-                } catch (IOException e)
+                } catch (ClassNotFoundException e)
                 {
-                    // TODO Auto-generated catch block
+                    // problems reading object or wrong object was sent
+                    e.printStackTrace();
+                }
+
+                catch (IOException e)
+                {
+                    // nothing to do
                     e.printStackTrace();
                 }
 
                 finally
                 {
-                    try
-                    {
-                        System.out.println("terminated");
-                        out.close();
-                        in.close();
-                       // individualconnection.close();
-                    }
-
-                    catch (IOException e)
-                    {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
+                    // finish one service
                 }
-                return null;
+
+                // calculate time and return it for finish service
+                long elapsedTime = System.nanoTime() - start;
+                return String.format("%.2f", elapsedTime / 1000000000.0);
+
             }
 
         };

@@ -21,100 +21,110 @@ import java.util.NoSuchElementException;
 public class KShingler implements Shingable
 {
 
-  /*
-   * Use a StringBuilder, a new one is created each time, when the first line is
-   * added bill added to the StringBuilder, when another line is added(after all
-   * shingler are taken) if will be append to any character remaining.
-   * 
-   */
-  private int length; // lenght of k-mers
-  private int position;// start of next k-mer
-  private StringBuilder line;
+    /*
+     * Use a StringBuilder, a new one is created each time, when the first line is added bill
+     * added to the StringBuilder, when another line is added(after all shingler are taken) if
+     * will be append to any character remaining.
+     * 
+     */
+    /**
+     * Length of k-mers
+     */
+    private int length;
+    /**
+     * start of next k-mer
+     */
+    private int position;
+    /**
+     * One line of input
+     */
+    private StringBuilder line;
 
-  /**
-   * Create a new KShingler object with k-mers size of parameter value.
-   * 
-   * @param shingleLength size of the k-mers in characters.
-   */
-  public KShingler(int shingleLength)
-  {
-    this.length = shingleLength;
-    this.position = 0;
-    line = null;
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean addLine(CharSequence line)
-  {
-    // check for first line
-    if (this.line == null)
+    /**
+     * Create a new KShingler object with k-mers size of parameter value.
+     * 
+     * @param shingleLength size of the k-mers in characters.
+     */
+    public KShingler(int shingleLength)
     {
-      this.line = new StringBuilder(line);
+        this.length = shingleLength;
+        this.position = 0;
+        line = null;
 
-    } else
-    {
-      // check if there is next(Only can add line if there is not)
-      if (hasNextShingle())
-        return false;
-
-      this.line = new StringBuilder(this.line.substring(position, this.line.length()));
-      this.line.append(line);
-      position = 0;
     }
 
-    return true;
+    /**
+     * {@inheritDoc}
+     */
+    public boolean addLine(CharSequence line)
+    {
+        // check for first line
+        if (this.line == null)
+        {
+            this.line = new StringBuilder(line);
 
-  }
+        } else
+        {
+            // check if there is next(Only can add line if there is not)
+            if (hasNextShingle())
+                return false;
 
-  /**
-   * {@inheritDoc}
-   */
-  public int nextShingle()
-  {
-    if (!hasNextShingle())
-      throw new NoSuchElementException();
+            this.line = new StringBuilder(this.line.substring(position, this.line.length()));
+            this.line.append(line);
+            position = 0;
+        }
 
-    int hash = line.substring(position, position + length).toString().hashCode();
-    position += length;
+        return true;
 
-    return hash;
+    }
 
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public int nextShingle()
+    {
+        if (!hasNextShingle())
+            throw new NoSuchElementException();
 
-  /**
-   * {@inheritDoc}
-   */
-  public boolean hasNextShingle()
-  {
-    return (line.length() - position) >= length;
+        int hash = line.substring(position, position + length).toString().hashCode();
+        position += length;
 
-  }
+        return hash;
 
-  /**
-   * {@inheritDoc}
-   */
-  public boolean hasLast()
-  {
-    return (line.length() - position) > 0;
+    }
 
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasNextShingle()
+    {
+        return (line.length() - position) >= length;
 
-  /**
-   * {@inheritDoc}
-   */
-  public int lastShingle()
-  {
-     if(!hasLast()) throw  new NoSuchElementException();
-     
-    int hash = line.substring(position, line.length()).toString().hashCode();
-    line = new StringBuilder();
-    position = 0;
+    }
 
-    return hash;
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasLast()
+    {
+        return (line.length() - position) > 0;
 
-  }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int lastShingle()
+    {
+        if (!hasLast())
+            throw new NoSuchElementException();
+
+        int hash = line.substring(position, line.length()).toString().hashCode();
+        line = new StringBuilder();
+        position = 0;
+
+        return hash;
+
+    }
 
 }

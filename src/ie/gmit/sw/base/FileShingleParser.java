@@ -27,10 +27,25 @@ import ie.gmit.sw.base.poison.NumberPoison;
 public class FileShingleParser implements Runnable
 {
 
+    /**
+     * output queue for shingles
+     */
     private final BlockingQueue<Number> queue;
+    /**
+     * read file
+     */
     private BufferedReader fileIn;
+    /**
+     * one line o input
+     */
     private String line;
+    /**
+     * produce shingles from line
+     */
     private Shingable shingler;
+    /**
+     * Number of thread used when building maps
+     */
     private int threandsInBuilding;
 
     /**

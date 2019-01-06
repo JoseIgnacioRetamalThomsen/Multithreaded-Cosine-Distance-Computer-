@@ -25,19 +25,12 @@ import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import ie.gmit.sw.base.CosineCalculatorType;
 import ie.gmit.sw.base.CountOne;
 import ie.gmit.sw.base.CounterMap;
 import ie.gmit.sw.base.ShingleType;
-import ie.gmit.sw.base.poison.CosineDistanceResultPoison;
 import ie.gmit.sw.data.CosineDistanceResult;
 import ie.gmit.sw.data.ServiceData;
 import javafx.beans.value.ChangeListener;
@@ -71,6 +64,8 @@ import javafx.scene.control.ListCell;
 import javafx.util.Callback;
 
 /**
+ * Main User Interface windows, {@code BorderPane} that take inputs and show results and
+ * progress.
  * 
  * @author Jose I. Retamal
  *
@@ -78,15 +73,38 @@ import javafx.util.Callback;
 public class MainWindow extends BorderPane
 {
 
-    private ServiceData serviceData;// collect data for service(file,subject folder, settings)
-    private static ListView<CosineDistanceResult> resultsView;// show results
-    private ObservableList<CosineDistanceResult> resultsObservable;// results list to place in List view above
-
-    VBox progresBarsMainVBox;// box for dynamically add progress bar
-
+    /**
+     * collect data for service(file,subject folder, settings)
+     */
+    private ServiceData serviceData;
+    /**
+     * show results
+     */
+    private static ListView<CosineDistanceResult> resultsView;
+    /**
+     * results list to place in List view above
+     */
+    private ObservableList<CosineDistanceResult> resultsObservable;
+    /**
+     * box for dynamically add progress bar
+     */
+    VBox progresBarsMainVBox;
+    /**
+     * List of remote connections
+     */
     private ObservableList<ConnectionData> cs;
+    /**
+     * Show remote connections
+     */
     private static ListView<ConnectionData> connectionView;
-    private RemoteThread rt;
+    /**
+     * Thread that listen for remote connection
+     */
+    private RemoteThreadConnector rt;
+    /**
+     * Runs remote thread
+     */
+    Thread listinForConnectionThread = null;
 
     public MainWindow()
     {
@@ -128,16 +146,19 @@ public class MainWindow extends BorderPane
     }
 
     /**
+     * Add center view for results
      * 
      * @param borderPane main border pane (this)
      */
     private void center(BorderPane borderPane)
     {
         resultsView.setItems(resultsObservable);// set items to result view
-
+       
+        
         final HBox main = new HBox();// main container for center
 
         resultsView.setPrefWidth(800);
+        resultsView.setPrefHeight(600);
 
         // set format for view cells
         resultsView.setCellFactory(new Callback<ListView<CosineDistanceResult>, ListCell<CosineDistanceResult>>()
@@ -175,7 +196,12 @@ public class MainWindow extends BorderPane
 
     }
 
-    // format cell for view queue
+    /**
+     * Format cell for show results in {@code resultsView}.
+     * 
+     * @author Jose I. Retamal
+     *
+     */
     static private class Cell extends ListCell<CosineDistanceResult>
     {
         @Override
@@ -227,8 +253,6 @@ public class MainWindow extends BorderPane
         borderPane.setTop(mainVBox);
 
     }
-
-    Thread listinForConnectionThread =null;
 
     /**
      * All inputs and start service
@@ -515,7 +539,7 @@ public class MainWindow extends BorderPane
 
         Button stopListening = new Button("Stop listening for remote");
         addRemoteHBox.getChildren().add(stopListening);
-        
+
         // info label
         final Label remoteInfoLabel = new Label("");
         style4(infoLabelHBox, new Insets(5, 12, 5, 12));// add style
@@ -523,16 +547,14 @@ public class MainWindow extends BorderPane
 
         // coonectios view
         connectionView.setItems(cs);
-        connectionView.setPrefSize(200, 100);
+        connectionView.setPrefSize(200, 50);
 
         // add view to container
         remoteContainer.getChildren().add(connectionView);
 
-        
-        
         addRemoteButton.setOnAction((ActionEvent e) -> {
 
-            rt = new RemoteThread(cs, this);
+            rt = new RemoteThreadConnector(cs, this);
             listinForConnectionThread = new Thread(rt);
             listinForConnectionThread.start();
             remoteInfoLabel.setText("Listinig for conections:");
@@ -540,24 +562,25 @@ public class MainWindow extends BorderPane
         });
         stopListening.setOnAction((ActionEvent e) -> {
 
-            if(listinForConnectionThread!=null)
+            if (listinForConnectionThread != null)
             {
                 rt.stop();
-                listinForConnectionThread=null;
-                for(ConnectionData c1 : cs)
+                listinForConnectionThread = null;
+                for (ConnectionData c1 : cs)
                 {
                     try
                     {
-                        c1.getIn().close();
-                        c1.getOut().close();
-                        c1.getSocket().close();
-                        
+                        c1.closeCoonection();
+                    
+
                     } catch (IOException e1)
                     {
                         // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
+                    
                 }
+                cs.clear();
             }
 
         });
@@ -631,10 +654,10 @@ public class MainWindow extends BorderPane
                 int socketId = 0;
                 for (ConnectionData c1 : cs)
                 {
-                    RemoteService2 rs = null;
+                    RemoteService rs = null;
                     try
                     {
-                        rs = new RemoteService2(c1, queryMap.get(), serviceData, this, resultsObservable);
+                        rs = new RemoteService(c1, queryMap.get(), serviceData, this, resultsObservable);
                     } catch (InterruptedException e1)
                     {
                         // TODO Auto-generated catch block
@@ -664,7 +687,7 @@ public class MainWindow extends BorderPane
                     });
 
                     rs.start();
-                    // r.start();
+                    
                 }
 
             } else
@@ -675,8 +698,13 @@ public class MainWindow extends BorderPane
 
     }
 
-    // task for thread to add to UI
-
+    /**
+     * task for thread to add to UI
+     * 
+     * @author Jose I. Retamal
+     *
+     * @param <V> type of return not used
+     */
     public class AddTextToLabel<V> extends Task<V>
     {
         String result;
@@ -698,6 +726,13 @@ public class MainWindow extends BorderPane
 
     }
 
+    /**
+     * Add progress task to right pane
+     * 
+     * @author Jose I. Retamal
+     *
+     * @param <V> type of return not used
+     */
     public class AddTaskBar<V> extends Task<V>
     {
         ShowProgress sp;
@@ -718,6 +753,13 @@ public class MainWindow extends BorderPane
 
     }
 
+    /**
+     * Add results to results view
+     * 
+     * @author Jose I. Retamal
+     *
+     * @param <V> type of return not used
+     */
     public class AddToResultListTask<V> extends Task<V>
     {
 
@@ -738,6 +780,13 @@ public class MainWindow extends BorderPane
         }
     }
 
+    /**
+     * Add conectins to connection view
+     * 
+     * @author Jose I. Retamal
+     *
+     * @param <V> type of return not used
+     */
     public class AddConnectionToConnectioView<V> extends Task<V>
     {
 

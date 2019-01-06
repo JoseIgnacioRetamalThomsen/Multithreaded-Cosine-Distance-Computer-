@@ -26,8 +26,17 @@ public class ConcurrentCounterHashMap<K> implements Cloneable, Serializable, Cou
     /*
      * Use a inner ConcurrentHashMap
      */
+    /**
+     * Serilization serial number
+     */
     private static final long serialVersionUID = -5419016465194643642L;
+    /**
+     * Identification file name
+     */
     private String name;
+    /**
+     * counter map
+     */
     private ConcurrentHashMap<K, Integer> countingMap = null;
 
     /**

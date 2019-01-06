@@ -16,6 +16,12 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+/**
+ * A VBox with all progress bar components to show in UI>
+ * 
+ * @author Jose I. Retamal
+ *
+ */
 public class ShowProgress extends VBox
 {
 
@@ -31,6 +37,7 @@ public class ShowProgress extends VBox
         this.progressBar = new ProgressBar();
         this.pin = new ProgressIndicator();
         final Label label = new Label(text);// set text and create label
+        label.setMaxWidth(120);
 
         hb1.setSpacing(5);
         hb1.setAlignment(Pos.CENTER);
@@ -44,7 +51,9 @@ public class ShowProgress extends VBox
 
         this.getChildren().addAll(hb1, hb2);
 
+        //bind progress bar to task
         progressBar.progressProperty().bind(readOnlyDoubleProperty);
+        
         pin.progressProperty().bind(readOnlyDoubleProperty);
 
     }

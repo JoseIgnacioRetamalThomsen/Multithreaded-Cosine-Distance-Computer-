@@ -29,11 +29,29 @@ import ie.gmit.sw.data.CosineDistanceResult;
 public class Calculator implements Runnable
 {
 
-    private BlockingQueue<Future<CounterMap<Integer>>> maps;// input query
-    private BlockingQueue<Future<CosineDistanceResult>> answers;// results query
-    private CounterMap<Integer> queryFile; // query file map
-    private ExecutorService executor;// runs CosineCalculator
+    /**
+     * input query
+     */
+    private BlockingQueue<Future<CounterMap<Integer>>> maps;
+    /**
+     * results query
+     */
+    private BlockingQueue<Future<CosineDistanceResult>> answers;
+    /**
+     * query file map
+     */
+    private CounterMap<Integer> queryFile; 
+    /**
+     * runs CosineCalculator
+     */
+    private ExecutorService executor;
+    /**
+     * Number of simultaneously running threads
+     */
     private int poolSize;
+    /**
+     * type cosine calculator, normal or big.
+     */
     private CosineCalculatorType cosineType;
 
     /**

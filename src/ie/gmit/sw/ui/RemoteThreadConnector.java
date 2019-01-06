@@ -1,3 +1,10 @@
+/*
+ * A Multithreaded Cosine Distance Computer. 
+ * Object Oriented Programming. 
+ * Galway-Mayo Institute of technologies.
+ * Jose I. Retamal
+ * 
+ */
 package ie.gmit.sw.ui;
 
 import java.io.IOException;
@@ -5,44 +12,57 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import ie.gmit.sw.data.CosineDistanceResult;
-import ie.gmit.sw.ui.MainWindow.AddToResultListTask;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-
-public class RemoteThread implements Runnable
+/**
+ * A Runnable that listen for remote connections.
+ * 
+ * @author Jose I. Retamal
+ *
+ */
+public class RemoteThreadConnector implements Runnable
 {
-
-    int maxConnectionThreads = 100;
-
-    ExecutorService connectionsExecutor = Executors.newFixedThreadPool(maxConnectionThreads);
-    int serverSocket = 82;
-    int maxRequestConnection = 10;
+    /**
+     * socket of connection
+     */
+    private int serverSocket = 82;
+    /**
+     * max number of connections for socket
+     */
+    private int maxRequestConnection = 10;
+    /**
+     * reference to main windows
+     */
     private MainWindow main;
-
+    /**
+     * open socked
+     */
     private transient ServerSocket listener;
-    private int clientid = 0;
-
-    // List<Socket> sockets;
+    /**
+     * // reference to the list of connection data linked to a view in main windows
+     */
     private ObservableList<ConnectionData> cs;
+    /**
+     * keep thread waiting for several connections
+     */
     private transient boolean isRunning = true;
 
-    // private List<RemoteService2> rs ;
-
-    public RemoteThread(ObservableList<ConnectionData> cs, MainWindow main)
+    /**
+     * Create object with references to main windows
+     * 
+     * @param cs   reference to list of connection in {@code MainWindow}
+     * @param main reference to {@code MainWindow}
+     */
+    public RemoteThreadConnector(ObservableList<ConnectionData> cs, MainWindow main)
     {
-        // this.sockets = sockets;
-        // this.rs=rs;
         this.main = main;
         this.cs = cs;
+
     }
 
-    @Override
+    /**
+     * Listen for connections
+     */
     public void run()
     {
         try
@@ -52,20 +72,15 @@ public class RemoteThread implements Runnable
             while (isRunning)
             {
 
-                // wait for conection
-
+                // wait for connection
                 Socket newconnection = listener.accept();
 
+                // create stream for the connection
                 ObjectOutputStream out = new ObjectOutputStream(newconnection.getOutputStream());
                 out.flush();
                 ObjectInputStream in = new ObjectInputStream(newconnection.getInputStream());
 
-                // sockets.add(newconnection);
-
-                // rs.add(new RemoteService2(new ConnectionData(out, in)));
-
-                // cs.add(new ConnectionData(out, in, newconnection));
-                // add to main windows view
+                // add connection to CS in MainWindow
                 Platform.runLater(main.new AddConnectionToConnectioView<ConnectionData>(cs,
                         new ConnectionData(out, in, newconnection)));
 
@@ -75,24 +90,29 @@ public class RemoteThread implements Runnable
 
         catch (IOException e)
         {
-            System.out.println("Socket not opened");
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // socket may be closed or we stop the connection
+            // e.printStackTrace();
         }
 
     }
 
+    /**
+     * Stop listening for connections
+     */
     public void stop()
     {
         try
         {
             this.listener.close();
+
         } catch (IOException e)
         {
-            // TODO Auto-generated catch block
+            // nothing to do
             e.printStackTrace();
         }
+
         this.isRunning = false;
+
     }
 
 }

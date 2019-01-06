@@ -21,9 +21,17 @@ import java.util.Set;
  */
 public class HashCounterMap<K> implements CounterMap<K>, Serializable, Cloneable
 {
-
+    /**
+     * serilization
+     */
     private static final long serialVersionUID = 3788122961081619444L;
+    /**
+     * internal {@code HashMap} that count
+     */
     private HashMap<K, Integer> countingMap = null;
+    /**
+     * name if this
+     */
     private String fileName;
 
     /**

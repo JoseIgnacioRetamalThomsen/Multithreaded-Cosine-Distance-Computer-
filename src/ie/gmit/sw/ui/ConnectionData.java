@@ -1,26 +1,64 @@
+/*
+ * A Multithreaded Cosine Distance Computer. 
+ * Object Oriented Programming. 
+ * Galway-Mayo Institute of technologies.
+ * Jose I. Retamal
+ * 
+ */
+
 package ie.gmit.sw.ui;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+/**
+ * Data about 1 remote connection, store open {@code ObjectOutputStream} and
+ * {@code ObjectInputStream references.
+ * 
+ * @author Jose I. Retamal
+ *
+ */
 public class ConnectionData
 {
+    /**
+     * Socket for the connection
+     */
     private Socket socket;
+    /**
+     * Out stream
+     */
     private ObjectOutputStream out;
+    /**
+     * In streak
+     */
     private ObjectInputStream in;
+    /**
+     * true if streams are open
+     */
     private transient boolean isAcitve;
+    /**
+     * for block another service in same connection when running
+     */
     private transient boolean isRunning;
+    
 
-    public ConnectionData(ObjectOutputStream out, ObjectInputStream in, Socket socket )
+    /**
+     * Create Object with streams and socket
+     * 
+     * @param out stream
+     * @param in stream 
+     * @param socket of the connection
+     */
+    public ConnectionData(ObjectOutputStream out, ObjectInputStream in, Socket socket)
     {
         super();
         this.out = out;
         this.in = in;
         isAcitve = true;
         isRunning = false;
-        this.socket=socket;
-       
+        this.socket = socket;
 
     }
 
@@ -102,5 +140,19 @@ public class ConnectionData
     public void setSocket(Socket socket)
     {
         this.socket = socket;
+    }
+
+    /**
+     * Close the connection streams
+     * 
+     * @throws IOException if streams can't be close
+     */
+    public void closeCoonection() throws IOException
+    {
+        out.close();
+        in.close();
+        this.isAcitve = false;
+        this.isRunning = false;
+
     }
 }

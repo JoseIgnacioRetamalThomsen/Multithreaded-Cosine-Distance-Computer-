@@ -29,15 +29,46 @@ import ie.gmit.sw.base.poison.MapFuturePoison;
 public class Counter implements Runnable
 {
 
+    /**
+     * out put queue of {@code CounterMap}.
+     */
     private BlockingQueue<Future<CounterMap<Integer>>> maps;
+    /**
+     * array of files for calculate cosine distance on each
+     */
     private File[] files;
+    /**
+     * subject directory path
+     */
     private File subjectDir;
+    /**
+     * number of thread for cosine calculator
+     */
     private int threadNumber = 10;
+    /**
+     * for execute parser file threads.
+     */
     private ExecutorService parcerExecutor;
+    /**
+     * for execute map building threads.
+     */
     private ExecutorService mapBuilderExecutor;
+    /**
+     * Size of shingles.
+     */
     private int shingleSize;
+    /**
+     * Types of shingles
+     */
     private ShingleType shingleType;
+    /**
+     * number of thread for build maps.
+     */
     private int numberOfBuildingThreads = 10;
+    /**
+     * limit memory usage
+     */
+    private int fileParserQueueSize =1000;
 
     /**
      * Create object with all necessary parameters.
@@ -70,7 +101,7 @@ public class Counter implements Runnable
         for (File file : files)
         {
 
-            BlockingQueue<Number> fileParseQueue = new LinkedBlockingQueue<>(1000);
+            BlockingQueue<Number> fileParseQueue = new LinkedBlockingQueue<>(fileParserQueueSize);
 
             FileShingleParser parcer = new FileShingleParser(fileParseQueue, shingleSize, shingleType,
                     numberOfBuildingThreads);
@@ -79,7 +110,6 @@ public class Counter implements Runnable
 
             parcerExecutor.execute(parcer);
 
-            // MapBuilder mapBuilder = new SingleThreadMapBuilder(fileParseQueue, file.toString());
             MapBuilder mapBuilder = new MutlipleThreadMapBuilder(fileParseQueue, file.toString(),
                     numberOfBuildingThreads);
 

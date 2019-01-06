@@ -38,14 +38,31 @@ import javafx.application.Platform;
 public class LocalService extends Service<String>
 {
 
-    ObservableList<CosineDistanceResult> resultsObservable; // list of results that shows in MainWindow
-    private ServiceData serviceData = new ServiceData();// user settings and files names
-    private BlockingQueue<Future<CounterMap<Integer>>> maps = new LinkedBlockingQueue<>(1000);// queue that get maps
-                                                                                              // from Counter
+    /**
+     * list of results that shows in MainWindow
+     */
+    private ObservableList<CosineDistanceResult> resultsObservable; 
+    /**
+     * user settings and files names
+     */
+    private ServiceData serviceData = new ServiceData(); 
+    /**
+     * queue that get maps from Counter
+     */
+    private BlockingQueue<Future<CounterMap<Integer>>> maps = new LinkedBlockingQueue<>(1000);
+    /**
+     *  queue that get results from Calculator
+     */
     private BlockingQueue<Future<CosineDistanceResult>> results = new LinkedBlockingQueue<Future<CosineDistanceResult>>(
-            1000);// get results from Calculator
-    private MainWindow mainWindow;// reference to MainWindow
-    Future<CounterMap<Integer>> queryMap;// map of the query file
+            1000);
+    /**
+     *  reference to MainWindow
+     */
+    private MainWindow mainWindow;
+    /**
+     * query file map
+     */
+    Future<CounterMap<Integer>> queryMap;
 
     /**
      * Create a {@code LocalService} object with all parameters needed to run.
