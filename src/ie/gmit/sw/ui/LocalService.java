@@ -25,11 +25,12 @@ import javafx.application.Platform;
 
 /**
  * Puts all class together for calculate cosine distance of a local query file against a
- * local subject directory.&nsbp;place results in a {@code ObservableList} which show
+ * local subject directory. 
+ * <p>
+ * Place results in a {@code ObservableList} which show
  * results in {@code MainWindows}, all data needed come in {@code Servicedata} object and
  * the query {@code File} is entered as parameter.
- * <p>
- * 
+ *  
  * 
  * @author Jose I. Retamal
  *
@@ -67,7 +68,7 @@ public class LocalService extends Service<String>
      * Create all classes and perform all work, return the total time that take to perform the
      * work.
      * 
-     * @return Task<String> time to finish in seconds as string
+     * @return {@codeTask<String>} time to finish in seconds as string
      */
     protected Task<String> createTask()
     {

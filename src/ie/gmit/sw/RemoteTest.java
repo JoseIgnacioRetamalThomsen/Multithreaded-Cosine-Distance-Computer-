@@ -132,33 +132,8 @@ class Connecthandler1 extends Thread
                 e.printStackTrace();
             }
             
-            
-/*
-            while (true)
-            {
-                // start conversation
-                // ask for calculator or string parse
-                sendMessage("Hello\n 1:Calculator\n 2:String to upper case \n");
+    
 
-                // read answer
-                message = (String) in.readObject();
-                System.out.println(message);
-
-                selection = Integer.parseInt(message);
-
-               
-
-                // all finished as for continue
-                sendMessage(" 1:Again\n 2:Exit");
-                // get answer
-                message = (String) in.readObject();
-                selection = Integer.parseInt(message);
-
-                // finish loop if exit
-                if (selection == 2)
-                    break;
-            }
-*/
         } catch (IOException e)
         {
             // TODO Auto-generated catch block

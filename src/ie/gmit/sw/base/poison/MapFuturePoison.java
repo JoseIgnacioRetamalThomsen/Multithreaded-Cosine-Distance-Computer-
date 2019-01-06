@@ -17,7 +17,7 @@ import ie.gmit.sw.base.CounterMap;
  * 
  * @author Jose I. Retamal
  *
- * @param <V>
+ * @param <V> type of counter map
  */
 public class MapFuturePoison<V>  implements Future<CounterMap<Integer>>
 {

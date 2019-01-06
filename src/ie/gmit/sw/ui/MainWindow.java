@@ -1,3 +1,10 @@
+/*
+ * A Multithreaded Cosine Distance Computer. 
+ * Object Oriented Programming. 
+ * Galway-Mayo Institute of technologies.
+ * Jose I. Retamal
+ * 
+ */
 package ie.gmit.sw.ui;
 
 import javafx.scene.layout.VBox;
@@ -17,10 +24,20 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.MouseEvent;
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import ie.gmit.sw.base.CosineCalculatorType;
 import ie.gmit.sw.base.CountOne;
 import ie.gmit.sw.base.CounterMap;
 import ie.gmit.sw.base.ShingleType;
+import ie.gmit.sw.base.poison.CosineDistanceResultPoison;
 import ie.gmit.sw.data.CosineDistanceResult;
 import ie.gmit.sw.data.ServiceData;
 import javafx.beans.value.ChangeListener;
@@ -53,14 +70,23 @@ import javafx.application.Platform;
 import javafx.scene.control.ListCell;
 import javafx.util.Callback;
 
+/**
+ * 
+ * @author Jose I. Retamal
+ *
+ */
 public class MainWindow extends BorderPane
 {
 
     private ServiceData serviceData;// collect data for service(file,subject folder, settings)
     private static ListView<CosineDistanceResult> resultsView;// show results
-    ObservableList<CosineDistanceResult> resultsObservable;// results list to place in List view above
+    private ObservableList<CosineDistanceResult> resultsObservable;// results list to place in List view above
 
     VBox progresBarsMainVBox;// box for dynamically add progress bar
+
+    private ObservableList<ConnectionData> cs;
+    private static ListView<ConnectionData> connectionView;
+    private RemoteThread rt;
 
     public MainWindow()
     {
@@ -68,6 +94,8 @@ public class MainWindow extends BorderPane
         serviceData = new ServiceData();
         resultsView = new ListView<CosineDistanceResult>();
         resultsObservable = FXCollections.observableArrayList();
+        cs = FXCollections.observableArrayList();
+        connectionView = new ListView<ConnectionData>();
 
         addTopVBox(this);// banner
         addLeftVBox(this);// inputs and start work
@@ -199,6 +227,8 @@ public class MainWindow extends BorderPane
         borderPane.setTop(mainVBox);
 
     }
+
+    Thread listinForConnectionThread =null;
 
     /**
      * All inputs and start service
@@ -355,34 +385,38 @@ public class MainWindow extends BorderPane
             }
 
         });
-
-        // settings
+        /*
+         * settings
+         */
         // create container and add
         final VBox settingsContainer = new VBox();
         mainVBox.getChildren().add(settingsContainer);
 
-        // create and add childrens
+        // create and add children
         final HBox settingHeaderHBox = new HBox();
-        final HBox settingsHBoxOne = new HBox();
-        final HBox settingsHBoxTwo = new HBox();
-        settingsContainer.getChildren().addAll(settingHeaderHBox, settingsHBoxOne, settingsHBoxTwo);
+        final HBox shingleTypeHBox = new HBox();
+        final HBox shingleSizeHBox = new HBox();
+        final HBox algortithmTypeHBox = new HBox();
+
+        settingsContainer.getChildren().addAll(settingHeaderHBox, shingleTypeHBox, shingleSizeHBox, algortithmTypeHBox);
 
         // header
         style3(settingHeaderHBox, new Insets(15, 12, 15, 12));// add style
 
         // title
-        addTitleText(settingHeaderHBox, "Select Shingles type and size");
+        addTitleText(settingHeaderHBox, "Settings");
 
         // info button
         String headerShingleType = "Help";
         String titleShingleType = "Shingles type and size";
         String infoShingleType = "You can select 2 types of shingles:\nK-Mers:the basic unit(element) is a fixed size  block of characters,"
                 + " where size is the length of the block. Include white spaces\nGroup : the basic unit(elements) fixed-size group of words."
-                + " Not case sensitive, not include punctuation, numbers are considered words, words attached by - are considered 1 word. \n Size is the length of character block or the number of words in the group.";
+                + " Not case sensitive, not include punctuation, numbers are considered words, words attached by - are considered 1 word. \n Size is the length of character block or the number of words in the group."
+                + "\nYou can select type of alogrithm, use normal for not very big amount of shingles. If you see results that make no sense(bigger % than 100 or negative numbers), use the Big algorith.S";
         addInfoButton(settingHeaderHBox, headerShingleType, titleShingleType, infoShingleType);
 
-        // Hbox one
-        style4(settingsHBoxOne, new Insets(15, 12, 7, 12));
+        // shingleTypeHBox
+        style4(shingleTypeHBox, new Insets(15, 12, 7, 12));
         final Label shingleTypeLabel = new Label("Shingles type: ");
 
         // combo box
@@ -390,16 +424,38 @@ public class MainWindow extends BorderPane
         shigleTypeComboBox.getItems().addAll(ShingleType.K_Mers, ShingleType.Group);
         shigleTypeComboBox.setValue(serviceData.getShinglerType());
 
-        settingsHBoxOne.getChildren().addAll(shingleTypeLabel, shigleTypeComboBox);
+        shingleTypeHBox.getChildren().addAll(shingleTypeLabel, shigleTypeComboBox);
 
-        // hbox two
-        style4(settingsHBoxTwo, new Insets(7, 12, 15, 12));// add style
+        // shingleSizeHBox
+        style4(shingleSizeHBox, new Insets(7, 12, 15, 12));// add style
 
         final Label shingleSizeLabel = new Label("Size:");
 
         // spiner for shingles lengh
         Spinner<Integer> intSpinner = new Spinner<>(1, 100, serviceData.getShingleLength(), 1);
-        settingsHBoxTwo.getChildren().addAll(shingleSizeLabel, intSpinner);
+        shingleSizeHBox.getChildren().addAll(shingleSizeLabel, intSpinner);
+
+        // algortithTypeHBox
+        style4(algortithmTypeHBox, new Insets(7, 12, 15, 12));
+        final Label algorithmTypeLabel = new Label("Algorithm type:");
+
+        // combo box
+        final ComboBox<CosineCalculatorType> algorithmTypeComboBox = new ComboBox<CosineCalculatorType>();
+        algorithmTypeComboBox.getItems().addAll(CosineCalculatorType.Normal, CosineCalculatorType.Big);
+        algorithmTypeComboBox.setValue(CosineCalculatorType.Normal);
+
+        algortithmTypeHBox.getChildren().addAll(algorithmTypeLabel, algorithmTypeComboBox);
+
+        // change listener to shingle type combo box
+        shigleTypeComboBox.valueProperty().addListener(new ChangeListener<ShingleType>()
+        {
+            public void changed(ObservableValue<? extends ShingleType> ov, ShingleType s, ShingleType selected)
+            {
+                serviceData.setShinglerType(selected);// set new shingle type
+
+            }
+
+        });
 
         // add on change listener to spinner
         intSpinner.valueProperty().addListener(new ChangeListener<Integer>()
@@ -412,18 +468,101 @@ public class MainWindow extends BorderPane
 
         });
 
-        // change listenr to combo box
-        shigleTypeComboBox.valueProperty().addListener(new ChangeListener<ShingleType>()
+        // change listener to algorithm type combo box
+        algorithmTypeComboBox.valueProperty().addListener(new ChangeListener<CosineCalculatorType>()
         {
-            public void changed(ObservableValue<? extends ShingleType> ov, ShingleType s, ShingleType selected)
+            public void changed(ObservableValue<? extends CosineCalculatorType> ov, CosineCalculatorType s,
+                    CosineCalculatorType selected)
             {
-                serviceData.setShinglerType(selected);// set new shingle type
+                serviceData.setCosineType(selected);// set new shingle type
 
             }
 
         });
 
-        // last
+        /*
+         * Remote
+         */
+        // create and add container
+        final VBox remoteContainer = new VBox();
+        mainVBox.getChildren().add(remoteContainer);
+
+        // create and add childrens
+        final HBox remoteHeaderHBox = new HBox();
+        final HBox addRemoteHBox = new HBox();
+        final HBox infoLabelHBox = new HBox();
+        remoteContainer.getChildren().addAll(remoteHeaderHBox, addRemoteHBox, infoLabelHBox);
+
+        // header
+        style3(remoteHeaderHBox, new Insets(15, 12, 15, 12));// add style
+
+        // title
+        addTitleText(remoteHeaderHBox, "Add remote services");
+
+        // info button
+        String headerRemote = "Help";
+        String titleRemote = "Remote Services";
+        String infoRemote = "You can add remote services by running the Remote Client and connecting using ip, note that firewall"
+                + " must be setup.\n When you press the button \"Add remote Services\" the program will start allowing remote connections, "
+                + "so after that you can run clients.";
+        addInfoButton(remoteHeaderHBox, headerRemote, titleRemote, infoRemote);
+
+        // addd remote button
+        style4(addRemoteHBox, new Insets(15, 12, 7, 12));
+
+        Button addRemoteButton = new Button("Add remote services");
+        addRemoteHBox.getChildren().add(addRemoteButton);
+
+        Button stopListening = new Button("Stop listening for remote");
+        addRemoteHBox.getChildren().add(stopListening);
+        
+        // info label
+        final Label remoteInfoLabel = new Label("");
+        style4(infoLabelHBox, new Insets(5, 12, 5, 12));// add style
+        infoLabelHBox.getChildren().add(remoteInfoLabel);
+
+        // coonectios view
+        connectionView.setItems(cs);
+        connectionView.setPrefSize(200, 100);
+
+        // add view to container
+        remoteContainer.getChildren().add(connectionView);
+
+        
+        
+        addRemoteButton.setOnAction((ActionEvent e) -> {
+
+            rt = new RemoteThread(cs, this);
+            listinForConnectionThread = new Thread(rt);
+            listinForConnectionThread.start();
+            remoteInfoLabel.setText("Listinig for conections:");
+
+        });
+        stopListening.setOnAction((ActionEvent e) -> {
+
+            if(listinForConnectionThread!=null)
+            {
+                rt.stop();
+                listinForConnectionThread=null;
+                for(ConnectionData c1 : cs)
+                {
+                    try
+                    {
+                        c1.getIn().close();
+                        c1.getOut().close();
+                        c1.getSocket().close();
+                        
+                    } catch (IOException e1)
+                    {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                }
+            }
+
+        });
+
+        // Main button
         // create and add container
         final HBox startButtonContainer = new HBox();
         final HBox messageContainer = new HBox();
@@ -441,13 +580,12 @@ public class MainWindow extends BorderPane
         startButtonContainer.getChildren().addAll(startButton);
         HBox.setHgrow(startButtonContainer, Priority.ALWAYS);
 
-        //mesagge 
+        // mesagge
         style4(messageContainer, new Insets(1, 12, 15, 12));// add style
 
         final Label finalMessage = new Label("");// for confirm input
         messageContainer.getChildren().add(finalMessage);
-        
-        
+
         borderPane.setLeft(mainVBox);
 
         /*
@@ -459,6 +597,8 @@ public class MainWindow extends BorderPane
 
             if (serviceData.isReady())
             {
+
+                // local
                 // calculate query file
                 CountOne c = new CountOne(serviceData.getShingleLength(), serviceData.getShinglerType());
                 c.setFile(serviceData.getQueryFile());
@@ -486,6 +626,47 @@ public class MainWindow extends BorderPane
                 });
 
                 localService.start();
+
+                // remote
+                int socketId = 0;
+                for (ConnectionData c1 : cs)
+                {
+                    RemoteService2 rs = null;
+                    try
+                    {
+                        rs = new RemoteService2(c1, queryMap.get(), serviceData, this, resultsObservable);
+                    } catch (InterruptedException e1)
+                    {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    } catch (ExecutionException e1)
+                    {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                    Label resultLabelRemote = new Label();
+                    // add task bar for service
+                    Platform.runLater(new AddTaskBar<ShowProgress>(
+                            new ShowProgress("R:" + ++socketId + " " + serviceData.getQueryFile().toString(),
+                                    rs.progressProperty(), resultLabelRemote),
+                            progresBarsMainVBox));
+
+                    // add result when success
+                    rs.setOnSucceeded(new EventHandler<WorkerStateEvent>()
+                    {
+
+                        @Override
+                        public void handle(WorkerStateEvent t)
+                        {
+                            Platform.runLater(new AddTextToLabel<Label>(
+                                    "done: " + t.getSource().getValue() + " seconds", resultLabelRemote));
+                        }
+                    });
+
+                    rs.start();
+                    // r.start();
+                }
+
             } else
             {
                 finalMessage.setText("Please input query file and subject dirctory.");
@@ -557,6 +738,25 @@ public class MainWindow extends BorderPane
         }
     }
 
+    public class AddConnectionToConnectioView<V> extends Task<V>
+    {
+
+        ConnectionData cs;
+        ObservableList<ConnectionData> target;
+
+        public AddConnectionToConnectioView(ObservableList<ConnectionData> target, ConnectionData cs)
+        {
+            this.target = target;
+            this.cs = cs;
+        }
+
+        @Override
+        protected V call() throws Exception
+        {
+            target.add(cs);
+            return null;
+        }
+    }
     /*
      * Styling functions
      */
@@ -711,4 +911,5 @@ public class MainWindow extends BorderPane
         vBox.setSpacing(10);
         vBox.setStyle("-fx-background-color: #f2f2f2;");
     }
+
 }
