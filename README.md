@@ -1,4 +1,4 @@
-    # Multithreaded Cosine Distance Computer 
+ # Multithreaded Cosine Distance Computer 
 
  ![UML](https://github.com/JoseIgnacioRetamalThomsen/Multithreaded-Cosine-Distance-Computer-/blob/master/design.png)
 
