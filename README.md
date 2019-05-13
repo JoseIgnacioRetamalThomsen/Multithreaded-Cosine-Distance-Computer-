@@ -2,7 +2,7 @@
 
  ![UML](https://github.com/JoseIgnacioRetamalThomsen/Multithreaded-Cosine-Distance-Computer-/blob/master/design.png)
 
- [JavaDocs](Multithreaded-Cosine-Distance-Computer-)
+ [JavaDocs](https://joseignacioretamalthomsen.github.io/Multithreaded-Cosine-Distance-Computer-/)
 
  [Live Demo](https://vimeo.com/309773960)
 
