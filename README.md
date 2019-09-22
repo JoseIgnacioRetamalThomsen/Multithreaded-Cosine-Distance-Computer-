@@ -18,9 +18,10 @@
  
 # Abstract 
 
+Calculate cosine distance of text files.
 The solutions aim to perform most of the work on parallel. Each file is done separately,
 while one thread is parsing file and creating shingles other is using hash maps for count those 
-shingles. Then the count of each file is place in a queue for be comparing against the query file by 
+shingles. Then the count of each file is place in a queue for comparing against the query file by 
 another thread.
  
  
